@@ -1,0 +1,36 @@
+@EventService_HostAddress = http://localhost:5189
+
+GET {{EventService_HostAddress}}/events/
+Accept: application/json
+
+###
+
+POST {{EventService_HostAddress}}/events/
+Content-Type: application/json
+
+{
+  "Title": "event1",
+  "Description": "description1",
+  "Location": "location1",
+  "Start": "2026-05-04T00:00:00Z"
+}
+
+
+###
+
+POST {{EventService_HostAddress}}/events/
+Content-Type: application/json
+
+{
+  "Title": "event2",
+  "Description": "description2",
+  "Location": "location2",
+  "Start": "2026-05-04T00:00:00Z",
+  "AttendeeGroups": [
+    {
+      "Title": "Floor",
+      "Capacity": 100,
+      "Type": "GeneralAdmission"
+    }
+  ]
+}

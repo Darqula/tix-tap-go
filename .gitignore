@@ -4,3 +4,5 @@
 **/.docs
 
 **/appsettings.Development.json
+
+**/*.DotSettings.user
