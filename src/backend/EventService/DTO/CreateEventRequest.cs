@@ -12,7 +12,7 @@ public record CreateEventRequest
     [MaxLength(1024)]
     public string Description { get; set; } = null!;
     [Required]
-    public DateTime Start { get; set; }
+    public DateTimeOffset Start { get; set; }
     [Required]
     [MaxLength(256)]
     public string Location { get; set; } = null!;
