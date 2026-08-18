@@ -1,7 +1,4 @@
-﻿using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Query;
+﻿using Microsoft.EntityFrameworkCore;
 using Shared.Entities;
 
 namespace Shared.DAL;
@@ -18,6 +15,12 @@ public abstract class SharedDbContext(DbContextOptions options) : DbContext(opti
     {
         ProcessTrackedEntities();
         return base.SaveChangesAsync(cancellationToken);
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Conventions.Add(_ => new EntityBaseConvention());
+        base.ConfigureConventions(configurationBuilder);
     }
 
     private void ProcessTrackedEntities()
@@ -40,31 +43,5 @@ public abstract class SharedDbContext(DbContextOptions options) : DbContext(opti
                     break;
             }
         }
-    }
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-
-        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        {
-            if (entityType.ClrType.IsAssignableTo(typeof(EntityBase)))
-            {
-                var entityTypeBuilder = modelBuilder.Entity(entityType.ClrType);
-                ApplyQueryFilter(entityType, b => !b.IsDeleted, "SoftDelete");
-                entityTypeBuilder.Property<DateTimeOffset>(nameof(EntityBase.CreatedAt)).HasDefaultValueSql("now()");
-                entityTypeBuilder.Property<DateTimeOffset>(nameof(EntityBase.UpdatedAt)).HasDefaultValueSql("now()");
-                entityTypeBuilder.Property<bool>(nameof(EntityBase.IsDeleted)).HasDefaultValue(false);
-            }
-        }
-    }
-
-    private void ApplyQueryFilter(IMutableEntityType entityType, Expression<Func<EntityBase, bool>> filter,
-        string filterKey)
-    {
-        var filterParam = Expression.Parameter(entityType.ClrType, "e");
-        var filterBody = ReplacingExpressionVisitor.Replace(filter.Parameters[0], filterParam, filter.Body);
-        var filterLambda = Expression.Lambda(filterBody, filterParam);
-        entityType.SetQueryFilter(filterKey, filterLambda);
     }
 }
