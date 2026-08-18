@@ -2,7 +2,7 @@
 
 namespace EventService.Entities;
 
-public class Event: EntityBase
+public class Event : EntityBase
 {
     public required string Title { get; set; }
     public required string Description { get; set; }

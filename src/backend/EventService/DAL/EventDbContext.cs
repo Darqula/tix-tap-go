@@ -1,5 +1,7 @@
 ﻿using EventService.Entities;
+
 using Microsoft.EntityFrameworkCore;
+
 using Shared.DAL;
 
 namespace EventService.DAL;

@@ -1,6 +1,7 @@
 using EventService.DAL;
 using EventService.DTO;
 using EventService.DTO.Mapping;
+
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 

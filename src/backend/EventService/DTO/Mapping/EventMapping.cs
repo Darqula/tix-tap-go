@@ -21,10 +21,10 @@ public static class EventMapping
     {
         var @event = new Event()
         {
-            Title =  dto.Title,
+            Title = dto.Title,
             Description = dto.Description,
             Location = dto.Location,
-            Start =  dto.Start
+            Start = dto.Start
         };
 
         if (dto.AttendeeGroups != null && dto.AttendeeGroups.Any())
