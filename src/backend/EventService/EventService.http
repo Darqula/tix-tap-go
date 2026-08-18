@@ -50,14 +50,7 @@ Content-Type: application/json
   "Title": "event33",
   "Description": "description33",
   "Location": "location33",
-  "Start": "2026-03-04T00:00:00Z",
-  "AttendeeGroups": [
-    {
-      "Title": "Floor23",
-      "Capacity": 103,
-      "Type": "GeneralAdmission"
-    }
-  ]
+  "Start": "2026-03-04T00:00:00Z"
 }
 
 ###

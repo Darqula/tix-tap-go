@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using EventService.Entities;
 
 namespace EventService.DTO;
 
@@ -17,25 +16,4 @@ public record CreateEventRequest
     [MaxLength(256)]
     public string Location { get; set; } = null!;
     public IEnumerable<CreateAttendeeGroupRequest>? AttendeeGroups { get; set; }
-
-    public Event ToModel()
-    {
-        var attendeeGroups = new List<AttendeeGroup>();
-        var @event = new Event()
-        {
-            Id = Guid.Empty,
-            Title =  Title,
-            Description = Description,
-            Location = Location,
-            Start =  Start,
-            AttendeeGroups = attendeeGroups
-        };
-
-        if (AttendeeGroups != null && AttendeeGroups.Any())
-        {
-            attendeeGroups.AddRange(AttendeeGroups.Select(groupDto => groupDto.ToModel(@event)));
-        }
-
-        return @event;
-    }
 }
