@@ -21,7 +21,7 @@ internal static class AttendeeGroupMapping
         {
             EventId = @event.Id,
             Title = dto.Title,
-            Type = dto.Type,
+            Type = dto.Type!.Value,
             Capacity = dto.Capacity
         };
     }

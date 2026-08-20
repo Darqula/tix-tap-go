@@ -11,11 +11,18 @@ internal static class EventEndpointsV1
 {
     internal static void MapEventEndpoints(this RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet("/", GetEvents).WithName("GetEvents");
-        groupBuilder.MapGet("/{id:guid}", GetEvent).WithName("GetEventById");
-        groupBuilder.MapPost("/", CreateEvent).WithName("CreateEvent");
-        groupBuilder.MapPatch("/{id:guid}", PatchEvent).WithName("UpdateEvent");
-        groupBuilder.MapDelete("/{id:guid}", DeleteEvent).WithName("DeleteEvent");
+        groupBuilder.MapGet("/", GetEvents)
+            .WithName("GetEvents");
+        groupBuilder.MapGet("/{id:guid}", GetEvent)
+            .WithName("GetEventById");
+        groupBuilder.MapPost("/", CreateEvent)
+            .WithName("CreateEvent")
+            .ProducesValidationProblem();
+        groupBuilder.MapPatch("/{id:guid}", PatchEvent)
+            .WithName("UpdateEvent")
+            .ProducesValidationProblem();
+        groupBuilder.MapDelete("/{id:guid}", DeleteEvent)
+            .WithName("DeleteEvent");
     }
 
     internal static async Task<Ok<List<GetEventResponse>>> GetEvents(EventDbContext dbContext)

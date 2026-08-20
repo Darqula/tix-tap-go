@@ -24,7 +24,7 @@ public static class EventMapping
             Title = dto.Title,
             Description = dto.Description,
             Location = dto.Location,
-            Start = dto.Start
+            Start = dto.Start!.Value
         };
 
         if (dto.AttendeeGroups != null && dto.AttendeeGroups.Any())

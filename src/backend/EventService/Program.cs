@@ -12,7 +12,8 @@ builder.Services
     .AddDbContext<EventDbContext>(options => options.UseNpgsql(
         builder.Configuration.GetConnectionString("PostgresConnection"))
     )
-    .AddProblemDetails();
+    .AddProblemDetails()
+    .AddValidation();
 
 var app = builder.Build();
 app.UseExceptionHandler();

@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 using EventService.Enums;
 
@@ -6,14 +7,15 @@ namespace EventService.DTO;
 
 public record CreateAttendeeGroupRequest
 {
-    public CreateAttendeeGroupRequest()
-    {
-    }
+    [Required]
+    [MaxLength(128)]
+    public string Title { get; set; } = null!;
 
-    public required string Title { get; init; }
-
+    [Required]
     [JsonConverter(typeof(JsonStringEnumConverter<SeatAssignmentType>))]
-    public required SeatAssignmentType Type { get; init; }
+    public SeatAssignmentType? Type { get; set; }
 
-    public required int Capacity { get; init; }
+    [Required]
+    [Range(1, int.MaxValue)]
+    public int Capacity { get; set; }
 }

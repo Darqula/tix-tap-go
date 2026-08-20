@@ -13,7 +13,7 @@ public record CreateEventRequest
     public string Description { get; set; } = null!;
 
     [Required]
-    public DateTimeOffset Start { get; set; }
+    public DateTimeOffset? Start { get; set; }
 
     [Required]
     [MaxLength(256)]
