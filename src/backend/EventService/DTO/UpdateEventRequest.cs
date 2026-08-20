@@ -2,7 +2,7 @@
 
 namespace EventService.DTO;
 
-public record UpdateEventRequest
+public sealed record UpdateEventRequest
 {
     [MaxLength(128)]
     public string? Title { get; set; }

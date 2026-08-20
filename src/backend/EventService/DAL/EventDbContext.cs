@@ -6,7 +6,7 @@ using Shared.DAL;
 
 namespace EventService.DAL;
 
-public class EventDbContext(DbContextOptions<EventDbContext> options) : SharedDbContext(options)
+internal sealed class EventDbContext(DbContextOptions<EventDbContext> options) : SharedDbContext(options)
 {
     public DbSet<Event> Events => Set<Event>();
     public DbSet<AttendeeGroup> AttendeeGroups => Set<AttendeeGroup>();

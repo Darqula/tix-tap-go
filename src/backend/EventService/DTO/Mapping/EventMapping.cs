@@ -2,7 +2,7 @@
 
 namespace EventService.DTO.Mapping;
 
-public static class EventMapping
+internal static class EventMapping
 {
     public static GetEventResponse ToGetEventResponse(this Event entity)
     {

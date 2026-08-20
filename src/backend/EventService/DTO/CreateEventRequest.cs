@@ -2,7 +2,7 @@
 
 namespace EventService.DTO;
 
-public record CreateEventRequest
+public sealed record CreateEventRequest
 {
     [Required]
     [MaxLength(128)]

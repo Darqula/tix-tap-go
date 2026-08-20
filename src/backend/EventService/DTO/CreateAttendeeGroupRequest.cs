@@ -5,7 +5,7 @@ using EventService.Enums;
 
 namespace EventService.DTO;
 
-public record CreateAttendeeGroupRequest
+public sealed record CreateAttendeeGroupRequest
 {
     [Required]
     [MaxLength(128)]

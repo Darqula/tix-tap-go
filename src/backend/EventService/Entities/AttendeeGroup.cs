@@ -6,7 +6,7 @@ using Shared.Entities;
 
 namespace EventService.Entities;
 
-public class AttendeeGroup : EntityBase
+internal sealed class AttendeeGroup : EntityBase
 {
     [Required]
     public required Guid EventId { get; init; }
