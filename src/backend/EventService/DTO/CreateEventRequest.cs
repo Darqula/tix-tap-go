@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using Shared.Validation;
+
 namespace EventService.DTO;
 
 public sealed record CreateEventRequest
@@ -13,6 +15,7 @@ public sealed record CreateEventRequest
     public string Description { get; set; } = null!;
 
     [Required]
+    [FutureDate]
     public DateTimeOffset? Start { get; set; }
 
     [Required]

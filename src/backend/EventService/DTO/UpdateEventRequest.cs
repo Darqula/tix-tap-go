@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using Shared.Validation;
+
 namespace EventService.DTO;
 
 public sealed record UpdateEventRequest
@@ -10,6 +12,7 @@ public sealed record UpdateEventRequest
     [MaxLength(1024)]
     public string? Description { get; set; }
 
+    [FutureDate]
     public DateTimeOffset? Start { get; set; }
 
     [MaxLength(256)]

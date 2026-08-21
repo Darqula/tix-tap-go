@@ -24,7 +24,7 @@ internal static class EventMapping
             Title = dto.Title,
             Description = dto.Description,
             Location = dto.Location,
-            Start = dto.Start!.Value
+            Start = dto.Start!.Value.ToUniversalTime()
         };
 
         if (dto.AttendeeGroups != null && dto.AttendeeGroups.Any())
