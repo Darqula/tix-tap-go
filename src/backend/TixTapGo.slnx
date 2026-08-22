@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="TixTapGo.EventService/TixTapGo.EventService.csproj"/>
+  <Project Path="TixTapGo.Gateway/TixTapGo.Gateway.csproj"/>
   <Project Path="TixTapGo.Shared/TixTapGo.Shared.csproj"/>
   <Project Path="TixTapGo.Api/TixTapGo.Api.csproj"/>
 </Solution>
