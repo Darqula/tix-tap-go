@@ -1,0 +1,59 @@
+@EventService_HostAddress = http://localhost:5033
+
+GET {{EventService_HostAddress}}/events/
+Accept: application/json
+
+###
+@get_id=01a0107e-6fb6-7872-a9d1-20c14e55a8f5
+GET {{EventService_HostAddress}}/events/{{get_id}}
+Accept: application/json
+
+###
+
+POST {{EventService_HostAddress}}/events/
+Content-Type: application/json
+
+{
+  "Title": "event1",
+  "Description": "description1",
+  "Location": "location1",
+  "Start": "2026-05-04T00:00:00Z"
+}
+
+
+###
+
+POST {{EventService_HostAddress}}/events/
+Content-Type: application/json
+
+{
+  "Title": "event3",
+  "Description": "description3",
+  "Location": "location3",
+  "Start": "2026-05-04T00:00:00Z",
+  "AttendeeGroups": [
+    {
+      "Title": "Floor2",
+      "Capacity": 102,
+      "Type": "GeneralAdmission"
+    }
+  ]
+}
+
+###
+
+@patch_id=01a01076-ed35-72b6-92ee-a6788326ea23
+PATCH {{EventService_HostAddress}}/events/{{patch_id}}
+Content-Type: application/json
+
+{
+  "Title": "event33",
+  "Description": "description33",
+  "Location": "location33",
+  "Start": "2026-03-04T00:00:00Z"
+}
+
+###
+
+@delete_id=01a0107e-6fb6-7872-a9d1-20c14e55a8f5
+DELETE {{EventService_HostAddress}}/events/{{delete_id}}
