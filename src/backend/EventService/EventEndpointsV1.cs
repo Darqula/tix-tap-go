@@ -25,24 +25,26 @@ internal static class EventEndpointsV1
             .WithName("DeleteEvent");
     }
 
-    internal static async Task<Ok<List<GetEventResponse>>> GetEvents(EventDbContext dbContext)
+    internal static async Task<Ok<List<GetEventResponse>>> GetEvents(EventDbContext dbContext,
+        CancellationToken cancellationToken)
     {
         var events = await dbContext.Events
             .Include(@event => @event.AttendeeGroups)
             .OrderBy(@event => @event.Id)
             .AsNoTracking()
             .Select(e => e.ToGetEventResponse())
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return TypedResults.Ok(events);
     }
 
-    internal static async Task<Results<Ok<GetEventResponse>, NotFound>> GetEvent(Guid id, EventDbContext dbContext)
+    internal static async Task<Results<Ok<GetEventResponse>, NotFound>> GetEvent(Guid id, EventDbContext dbContext,
+        CancellationToken cancellationToken)
     {
         var @event = await dbContext.Events
             .Include(@event => @event.AttendeeGroups)
             .AsNoTracking()
-            .FirstOrDefaultAsync(@event => @event.Id == id);
+            .FirstOrDefaultAsync(@event => @event.Id == id, cancellationToken);
 
         return @event != null
             ? TypedResults.Ok(@event.ToGetEventResponse())
@@ -59,9 +61,9 @@ internal static class EventEndpointsV1
     }
 
     internal static async Task<Results<Ok<GetEventResponse>, NotFound>> PatchEvent(Guid id,
-        UpdateEventRequest updateRequest, EventDbContext dbContext)
+        UpdateEventRequest updateRequest, EventDbContext dbContext, CancellationToken cancellationToken)
     {
-        var @event = await dbContext.Events.FindAsync(id);
+        var @event = await dbContext.Events.FindAsync([id], CancellationToken.None);
         if (@event == null)
         {
             return TypedResults.NotFound();
@@ -87,12 +89,12 @@ internal static class EventEndpointsV1
             @event.Start = newStart;
         }
 
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(CancellationToken.None);
 
         await dbContext
             .Entry(@event)
             .Collection(e => e.AttendeeGroups)
-            .LoadAsync();
+            .LoadAsync(cancellationToken);
 
         return TypedResults.Ok(@event.ToGetEventResponse());
     }
