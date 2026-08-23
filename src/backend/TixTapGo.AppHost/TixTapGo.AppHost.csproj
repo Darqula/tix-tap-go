@@ -1,0 +1,18 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.5.2">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>63c4c6b7-7564-42a0-bbc6-b4bdb4aeb5d8</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TixTapGo.EventService\TixTapGo.EventService.csproj"/>
+    <ProjectReference Include="..\TixTapGo.Gateway\TixTapGo.Gateway.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL"/>
+  </ItemGroup>
+
+</Project>

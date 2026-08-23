@@ -7,15 +7,17 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+builder.AddNpgsqlDbContext<EventDbContext>("eventsdb");
+
 builder.Services
     .AddOpenApi()
-    .AddDbContext<EventDbContext>(options => options.UseNpgsql(
-        builder.Configuration.GetConnectionString("PostgresConnection"))
-    )
     .AddProblemDetails()
     .AddValidation();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
