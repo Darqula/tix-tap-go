@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <UserSecretsId>aspnet-TixTapGo.AuthService-085a89c0-7074-4eb9-9a20-65c5600f1442</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL"/>
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore"/>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore"/>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all"/>
+    <PackageReference Include="Microsoft.Web.LibraryManager.Build"/>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
+    <PackageReference Include="OpenIddict.AspNetCore"/>
+    <PackageReference Include="OpenIddict.EntityFrameworkCore"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TixTapGo.ServiceDefaults\TixTapGo.ServiceDefaults.csproj"/>
+    <ProjectReference Include="..\TixTapGo.Shared\TixTapGo.Shared.csproj"/>
+  </ItemGroup>
+
+</Project>

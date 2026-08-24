@@ -2,6 +2,7 @@
 **/obj
 **/.idea
 **/.docs
+**/wwwroot/lib
 
 **/appsettings.Development.json
 
