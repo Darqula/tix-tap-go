@@ -9,6 +9,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.OpenApi"/>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
+    <PackageReference Include="OpenIddict.AspNetCore"/>
     <PackageReference Include="Scalar.AspNetCore"/>
   </ItemGroup>
   <ItemGroup>

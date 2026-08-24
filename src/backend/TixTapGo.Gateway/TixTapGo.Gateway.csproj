@@ -3,6 +3,7 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp"/>
     <PackageReference Include="Microsoft.OpenApi"/>
+    <PackageReference Include="OpenIddict"/>
     <PackageReference Include="Yarp.ReverseProxy"/>
   </ItemGroup>
   <ItemGroup>
