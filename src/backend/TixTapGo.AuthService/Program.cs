@@ -21,6 +21,14 @@ builder.Services.AddOpenIddict()
     }).AddServer(options =>
     {
         options.SetIssuer("https://authservice");
+        options.SetTokenEndpointUris("/connect/token");
+        options.AllowClientCredentialsFlow();
+        options.AddEncryptionKey(new SymmetricSecurityKey(
+            Convert.FromBase64String("dGl4dGFwZ28tbG9uZy1lbmNyeXB0aW9uLXBhc3N3b3I=")));
+        options.AddDevelopmentSigningCertificate();
+        options.AddDevelopmentEncryptionCertificate();
+        options.UseAspNetCore()
+            .EnableTokenEndpointPassthrough();
     });
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -59,5 +67,26 @@ app.MapControllerRoute(
 
 app.MapRazorPages()
     .WithStaticAssets();
+
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await context.Database.EnsureCreatedAsync();
+
+    var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+    if (await manager.FindByClientIdAsync("gateway") is null)
+    {
+        await manager.CreateAsync(new OpenIddictApplicationDescriptor
+        {
+            ClientId = "gateway",
+            ClientSecret = "42547ed8-25bf-4c99-b375-ae33f2aca9d6",
+            Permissions =
+            {
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.ClientCredentials
+            }
+        });
+    }
+}
 
 app.Run();
