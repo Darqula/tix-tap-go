@@ -14,6 +14,16 @@ builder.AddServiceDefaults();
 builder.Services.AddOpenIddict()
     .AddClient(options =>
     {
+        var clientCredentialsFlowConfig = builder.Configuration.GetSection("ClientCredentialsFlow");
+        string? clientId = clientCredentialsFlowConfig["ClientId"];
+        string? clientSecret = clientCredentialsFlowConfig["ClientSecret"];
+
+        if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+        {
+            throw new InvalidOperationException(
+                "ClientCredentialsFlow:ClientId or ClientCredentialsFlow:ClientSecret are not configured.");
+        }
+
         options.AllowClientCredentialsFlow();
         options.DisableTokenStorage();
         options.UseSystemNetHttp();
@@ -21,8 +31,8 @@ builder.Services.AddOpenIddict()
         {
             Issuer = new Uri("https://authservice", UriKind.Absolute),
             ConfigurationEndpoint = new Uri("https://authservice/.well-known/openid-configuration", UriKind.Absolute),
-            ClientId = "gateway",
-            ClientSecret = "42547ed8-25bf-4c99-b375-ae33f2aca9d6",
+            ClientId = clientId,
+            ClientSecret = clientSecret,
         });
     });
 

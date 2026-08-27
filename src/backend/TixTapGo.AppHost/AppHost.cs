@@ -18,11 +18,13 @@ var eventService = builder
     .WithReference(authService)
     .WaitFor(eventsDb);
 
+var gatewaySecret = builder.AddParameter("gateway-secret", secret: true);
 builder.AddProject<Projects.TixTapGo_Gateway>("gateway")
     .WithReference(eventService)
     .WithReference(authService)
     .WaitFor(eventService)
     .WaitFor(authService)
+    .WithEnvironment("ClientCredentialsFlow__ClientSecret", gatewaySecret)
     .WithExternalHttpEndpoints();
 
 builder.Build().Run();
