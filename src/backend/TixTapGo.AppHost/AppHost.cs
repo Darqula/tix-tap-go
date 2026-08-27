@@ -2,7 +2,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var pgPassword = builder.AddParameter("local-postgres-password", secret: true);
 var postgres = builder
-    .AddPostgres("local-postgres", password: pgPassword)
+    .AddPostgres("local-postgres", port: 5432, password: pgPassword)
     .WithDataVolume();
 
 var eventsDb = postgres.AddDatabase("eventsdb");
