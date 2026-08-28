@@ -6,5 +6,4 @@
   <Project Path="TixTapGo.Gateway/TixTapGo.Gateway.csproj"/>
   <Project Path="TixTapGo.ServiceDefaults/TixTapGo.ServiceDefaults.csproj"/>
   <Project Path="TixTapGo.Shared/TixTapGo.Shared.csproj"/>
-  <Project Path="TixTapGo.Api/TixTapGo.Api.csproj"/>
 </Solution>
