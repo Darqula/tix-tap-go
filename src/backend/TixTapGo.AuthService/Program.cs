@@ -18,11 +18,17 @@ builder.Services.AddOpenIddict()
         options.UseEntityFrameworkCore().UseDbContext<ApplicationDbContext>();
     }).AddServer(options =>
     {
+        string? clientCredentialsEncryptionKey =
+            builder.Configuration.GetSection("Authentication")["ClientCredentialsEncryptionKey"];
+        if (string.IsNullOrWhiteSpace(clientCredentialsEncryptionKey))
+        {
+            throw new InvalidOperationException("Authentication:ClientCredentialsEncryptionKey is not configured");
+        }        
         options.SetIssuer("https://authservice");
         options.SetTokenEndpointUris("/connect/token");
         options.AllowClientCredentialsFlow();
         options.AddEncryptionKey(new SymmetricSecurityKey(
-            Convert.FromBase64String("dGl4dGFwZ28tbG9uZy1lbmNyeXB0aW9uLXBhc3N3b3I=")));
+            Convert.FromBase64String(clientCredentialsEncryptionKey)));
         options.AddDevelopmentSigningCertificate();
         options.AddDevelopmentEncryptionCertificate();
         options.UseAspNetCore()

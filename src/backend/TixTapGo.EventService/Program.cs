@@ -21,9 +21,15 @@ builder.Services
 builder.Services.AddOpenIddict()
     .AddValidation(options =>
     {
+        string? clientCredentialsEncryptionKey =
+            builder.Configuration.GetSection("Authentication")["ClientCredentialsEncryptionKey"];
+        if (string.IsNullOrWhiteSpace(clientCredentialsEncryptionKey))
+        {
+            throw new InvalidOperationException("Authentication:ClientCredentialsEncryptionKey is not configured");
+        }
         options.SetIssuer("https://authservice");
         options.AddEncryptionKey(new SymmetricSecurityKey(
-            Convert.FromBase64String("dGl4dGFwZ28tbG9uZy1lbmNyeXB0aW9uLXBhc3N3b3I=")));
+            Convert.FromBase64String(clientCredentialsEncryptionKey)));
 
         options.UseSystemNetHttp();
         options.UseAspNetCore();
