@@ -10,6 +10,7 @@
     <ProjectReference Include="..\TixTapGo.AuthService\TixTapGo.AuthService.csproj"/>
     <ProjectReference Include="..\TixTapGo.EventService\TixTapGo.EventService.csproj"/>
     <ProjectReference Include="..\TixTapGo.Gateway\TixTapGo.Gateway.csproj"/>
+    <ProjectReference Include="..\TixTapGo.VenueService\TixTapGo.VenueService.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

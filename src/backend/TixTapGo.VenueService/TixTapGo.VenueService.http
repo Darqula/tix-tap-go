@@ -1,0 +1,6 @@
+@TixTapGo.VenueService_HostAddress = http://localhost:5070
+
+GET {{TixTapGo.VenueService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

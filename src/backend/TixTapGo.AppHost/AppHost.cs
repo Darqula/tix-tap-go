@@ -9,6 +9,7 @@ var postgres = builder
 
 var eventsDb = postgres.AddDatabase("eventsdb");
 var authDb = postgres.AddDatabase("authdb");
+var venuesDb = postgres.AddDatabase("venuesdb");
 
 var clientCredentialsEncryptionKey = builder
     .AddParameter("client-credentials-encryption-key", secret: true)
@@ -26,12 +27,20 @@ var eventService = builder
     .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey)
     .WaitFor(eventsDb);
 
+var venueService = builder.AddProject<Projects.TixTapGo_VenueService>("venueservice")
+    .WithReference(venuesDb)
+    .WithReference(authService)
+    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey)
+    .WaitFor(venuesDb);
+
 var gatewaySecret = builder.AddParameter("gateway-secret", secret: true);
 builder.AddProject<Projects.TixTapGo_Gateway>("gateway")
     .WithReference(eventService)
     .WithReference(authService)
+    .WithReference(venueService)
     .WaitFor(eventService)
     .WaitFor(authService)
+    .WaitFor(venueService)
     .WithEnvironment("ClientCredentialsFlow__ClientSecret", gatewaySecret)
     .WithExternalHttpEndpoints();
 
