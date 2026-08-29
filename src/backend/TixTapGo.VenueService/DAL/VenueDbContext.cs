@@ -10,7 +10,7 @@ internal sealed class VenueDbContext(DbContextOptions<VenueDbContext> options) :
 {
     public DbSet<Venue> Venues => Set<Venue>();
     public DbSet<VenueSeat> VenueSeats => Set<VenueSeat>();
-    public DbSet<VenueSeatingMapVersion> VenueSeatMapVersions => Set<VenueSeatingMapVersion>();
+    public DbSet<VenueSeatingMapVersion> VenueSeatingMapVersions => Set<VenueSeatingMapVersion>();
     public DbSet<SeatCategory> SeatCategories => Set<SeatCategory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
