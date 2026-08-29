@@ -12,4 +12,5 @@ internal sealed class Venue : EntityBase
     public VenueSeatingMapVersion? CurrentSeatingMap { get; set; }
 
     public IEnumerable<VenueSeatingMapVersion> SeatingMapVersions { get; } = new List<VenueSeatingMapVersion>();
+    public IEnumerable<SeatCategory> SeatCategories { get; } = new List<SeatCategory>();
 }

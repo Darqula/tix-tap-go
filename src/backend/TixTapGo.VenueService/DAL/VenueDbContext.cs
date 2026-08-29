@@ -9,7 +9,9 @@ namespace TixTapGo.VenueService.DAL;
 internal sealed class VenueDbContext(DbContextOptions<VenueDbContext> options) : SharedDbContext(options)
 {
     public DbSet<Venue> Venues => Set<Venue>();
+    public DbSet<VenueSeat> VenueSeats => Set<VenueSeat>();
     public DbSet<VenueSeatingMapVersion> VenueSeatMapVersions => Set<VenueSeatingMapVersion>();
+    public DbSet<SeatCategory> SeatCategories => Set<SeatCategory>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,5 +24,7 @@ internal sealed class VenueDbContext(DbContextOptions<VenueDbContext> options) :
 
         modelBuilder.ApplyConfiguration(new VenueConfiguration());
         modelBuilder.ApplyConfiguration(new VenueSeatMapVersionConfiguration(this));
+        modelBuilder.ApplyConfiguration(new VenueSeatConfiguration());
+        modelBuilder.ApplyConfiguration(new SeatCategoryConfiguration());
     }
 }
