@@ -3,6 +3,7 @@
     <PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp"/>
     <PackageReference Include="OpenIddict.Client"/>
     <PackageReference Include="OpenIddict.Client.SystemNetHttp"/>
+    <PackageReference Include="Scalar.AspNetCore"/>
     <PackageReference Include="Yarp.ReverseProxy"/>
   </ItemGroup>
   <ItemGroup>

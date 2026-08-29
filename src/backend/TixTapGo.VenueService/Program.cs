@@ -3,8 +3,6 @@ using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 
-using Scalar.AspNetCore;
-
 using TixTapGo.VenueService.DAL;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,7 +47,6 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
     app.UseDeveloperExceptionPage();
 }
 

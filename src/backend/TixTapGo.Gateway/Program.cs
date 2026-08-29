@@ -2,6 +2,8 @@ using System.Net.Http.Headers;
 
 using OpenIddict.Client;
 
+using Scalar.AspNetCore;
+
 using TixTapGo.Gateway.Services;
 using TixTapGo.Gateway.Services.Abstractions;
 
@@ -73,5 +75,18 @@ var app = builder.Build();
 
 app.MapDefaultEndpoints();
 app.MapReverseProxy();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapScalarApiReference(o =>
+    {
+        o.Title = "TixTapGo API";
+        o.AddDocuments([
+            new ScalarDocument("events", "Events", "/openapi/events.json", true),
+            new ScalarDocument("venues", "Venues", "/openapi/venues.json")
+        ]);
+        o.Servers = [];
+    });
+}
 
 app.Run();

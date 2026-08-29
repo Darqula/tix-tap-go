@@ -6,8 +6,6 @@ using OpenIddict.Validation.AspNetCore;
 using TixTapGo.EventService;
 using TixTapGo.EventService.DAL;
 
-using Scalar.AspNetCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
@@ -57,7 +55,6 @@ app.UseExceptionHandler();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
     app.UseDeveloperExceptionPage();
     app.UseHttpLogging();
 }

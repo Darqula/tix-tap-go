@@ -3,7 +3,6 @@
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL"/>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
     <PackageReference Include="OpenIddict.AspNetCore"/>
-    <PackageReference Include="Scalar.AspNetCore"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TixTapGo.ServiceDefaults\TixTapGo.ServiceDefaults.csproj"/>
