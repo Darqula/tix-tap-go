@@ -31,8 +31,8 @@ builder.Services.AddOpenIddict()
         options.UseSystemNetHttp();
         options.AddRegistration(new OpenIddictClientRegistration
         {
-            Issuer = new Uri("https://authservice", UriKind.Absolute),
-            ConfigurationEndpoint = new Uri("https://authservice/.well-known/openid-configuration", UriKind.Absolute),
+            Issuer = new Uri("https://auth-service", UriKind.Absolute),
+            ConfigurationEndpoint = new Uri("https://auth-service/.well-known/openid-configuration", UriKind.Absolute),
             ClientId = clientId,
             ClientSecret = clientSecret,
         });

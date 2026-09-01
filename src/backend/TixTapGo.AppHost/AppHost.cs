@@ -4,7 +4,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var pgPassword = builder.AddParameter("local-postgres-password", secret: true);
 var postgres = builder
-    .AddPostgres("local-postgres", port: 5432, password: pgPassword)
+    .AddPostgres("local-postgres", password: pgPassword)
     .WithDataVolume();
 
 var eventsDb = postgres.AddDatabase("eventsdb");
@@ -15,23 +15,41 @@ var clientCredentialsEncryptionKey = builder
     .AddParameter("client-credentials-encryption-key", secret: true)
     .WithDescription($"Randomly generated key to set: {Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))}");
 
-var authService = builder.AddProject<Projects.TixTapGo_AuthService>("authservice")
+var authService = builder.AddProject<Projects.TixTapGo_AuthService>("auth-service")
     .WithReference(authDb)
-    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey)
+    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
+
+var authDbMigration = authService
+    .AddEFMigrations("authdb-migration")
+    .RunDatabaseUpdateOnStart()
     .WaitFor(authDb);
 
+authService.WaitForCompletion(authDbMigration);
+
 var eventService = builder
-    .AddProject<Projects.TixTapGo_EventService>("eventservice")
+    .AddProject<Projects.TixTapGo_EventService>("event-service")
     .WithReference(eventsDb)
     .WithReference(authService)
-    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey)
+    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
+
+var eventsDbMigration = eventService
+    .AddEFMigrations("eventsdb-migration")
+    .RunDatabaseUpdateOnStart()
     .WaitFor(eventsDb);
 
-var venueService = builder.AddProject<Projects.TixTapGo_VenueService>("venueservice")
+eventService.WaitForCompletion(eventsDbMigration);
+
+var venueService = builder.AddProject<Projects.TixTapGo_VenueService>("venue-service")
     .WithReference(venuesDb)
     .WithReference(authService)
-    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey)
+    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
+
+var venuesDbMigration = venueService
+    .AddEFMigrations("venuesdb-migration")
+    .RunDatabaseUpdateOnStart()
     .WaitFor(venuesDb);
+
+venueService.WaitForCompletion(venuesDbMigration);
 
 var gatewaySecret = builder.AddParameter("gateway-secret", secret: true);
 builder.AddProject<Projects.TixTapGo_Gateway>("gateway")

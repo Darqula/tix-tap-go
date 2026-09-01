@@ -25,7 +25,7 @@ builder.Services.AddOpenIddict()
         {
             throw new InvalidOperationException("Authentication:ClientCredentialsEncryptionKey is not configured");
         }
-        options.SetIssuer("https://authservice");
+        options.SetIssuer("https://auth-service");
         options.AddEncryptionKey(new SymmetricSecurityKey(
             Convert.FromBase64String(clientCredentialsEncryptionKey)));
 
