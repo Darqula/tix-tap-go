@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 using TixTapGo.EventService.Enums;
-using TixTapGo.Shared.Entities;
+using TixTapGo.Shared.Persistence.Entities;
 
 namespace TixTapGo.EventService.Entities;
 

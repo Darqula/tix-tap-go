@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using TixTapGo.Shared.Entities;
+using TixTapGo.Shared.Persistence.Entities;
 
-namespace TixTapGo.Shared.DAL;
+namespace TixTapGo.Shared.Persistence.DAL;
 
 public abstract class SharedDbContext(DbContextOptions options) : DbContext(options)
 {

@@ -1,4 +1,4 @@
-﻿using TixTapGo.Shared.Entities;
+﻿using TixTapGo.Shared.Persistence.Entities;
 
 namespace TixTapGo.VenueService.Entities;
 

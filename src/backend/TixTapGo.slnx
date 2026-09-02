@@ -6,5 +6,6 @@
   <Project Path="TixTapGo.Gateway/TixTapGo.Gateway.csproj"/>
   <Project Path="TixTapGo.ServiceDefaults/TixTapGo.ServiceDefaults.csproj"/>
   <Project Path="TixTapGo.Shared/TixTapGo.Shared.csproj"/>
+  <Project Path="TixTapGo.Shared.Persistence/TixTapGo.Shared.Persistence.csproj"/>
   <Project Path="TixTapGo.VenueService/TixTapGo.VenueService.csproj"/>
 </Solution>

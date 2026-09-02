@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using TixTapGo.Shared.DAL;
+using TixTapGo.Shared.Persistence.DAL;
 using TixTapGo.VenueService.Entities;
 
 namespace TixTapGo.VenueService.DAL.Configurations;

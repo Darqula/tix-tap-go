@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TixTapGo.Shared.Entities;
+namespace TixTapGo.Shared.Persistence.Entities;
 
 public abstract class EntityBase
 {

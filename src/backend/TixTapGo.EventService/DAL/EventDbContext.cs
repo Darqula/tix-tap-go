@@ -2,7 +2,7 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using TixTapGo.Shared.DAL;
+using TixTapGo.Shared.Persistence.DAL;
 
 namespace TixTapGo.EventService.DAL;
 

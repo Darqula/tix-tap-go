@@ -6,9 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Query;
 
-using TixTapGo.Shared.Entities;
+using TixTapGo.Shared.Persistence.Entities;
 
-namespace TixTapGo.Shared.DAL;
+namespace TixTapGo.Shared.Persistence.DAL;
 
 public class EntityBaseConvention : IModelFinalizingConvention
 {

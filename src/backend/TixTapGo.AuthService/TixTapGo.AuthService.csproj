@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TixTapGo.ServiceDefaults\TixTapGo.ServiceDefaults.csproj"/>
-    <ProjectReference Include="..\TixTapGo.Shared\TixTapGo.Shared.csproj"/>
+    <ProjectReference Include="..\TixTapGo.Shared.Persistence\TixTapGo.Shared.Persistence.csproj"/>
   </ItemGroup>
 
 </Project>

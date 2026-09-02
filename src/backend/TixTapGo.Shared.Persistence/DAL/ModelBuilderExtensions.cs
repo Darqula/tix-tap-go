@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using TixTapGo.Shared.Entities;
+using TixTapGo.Shared.Persistence.Entities;
 
-namespace TixTapGo.Shared.DAL;
+namespace TixTapGo.Shared.Persistence.DAL;
 
 public static class ModelBuilderExtensions
 {
