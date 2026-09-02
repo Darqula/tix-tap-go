@@ -4,18 +4,25 @@ using TixTapGo.Shared.Persistence.Entities;
 
 namespace TixTapGo.Shared.Persistence.DAL;
 
-public abstract class SharedDbContext(DbContextOptions options) : DbContext(options)
+public abstract class SharedDbContext : DbContext
 {
+    private readonly HierarchicalSoftDeleteCommand _hierarchicalSoftDeleteCommand;
+
+    protected SharedDbContext(DbContextOptions options) : base(options)
+    {
+        _hierarchicalSoftDeleteCommand = new HierarchicalSoftDeleteCommand(this);
+    }
+
     public override int SaveChanges()
     {
-        ProcessTrackedEntities();
+        ProcessTrackedEntitiesAsync().GetAwaiter().GetResult();
         return base.SaveChanges();
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
     {
-        ProcessTrackedEntities();
-        return base.SaveChangesAsync(cancellationToken);
+        await ProcessTrackedEntitiesAsync();
+        return await base.SaveChangesAsync(cancellationToken);
     }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -24,7 +31,7 @@ public abstract class SharedDbContext(DbContextOptions options) : DbContext(opti
         base.ConfigureConventions(configurationBuilder);
     }
 
-    private void ProcessTrackedEntities()
+    private async Task ProcessTrackedEntitiesAsync()
     {
         foreach (var changedEntry in ChangeTracker.Entries<EntityBase>())
         {
@@ -38,9 +45,7 @@ public abstract class SharedDbContext(DbContextOptions options) : DbContext(opti
                     changedEntry.Entity.UpdatedAt = DateTimeOffset.UtcNow;
                     break;
                 case EntityState.Deleted:
-                    changedEntry.Entity.IsDeleted = true;
-                    changedEntry.Entity.UpdatedAt = DateTimeOffset.UtcNow;
-                    changedEntry.State = EntityState.Modified;
+                    await _hierarchicalSoftDeleteCommand.ExecuteAsync(changedEntry);
                     break;
             }
         }
