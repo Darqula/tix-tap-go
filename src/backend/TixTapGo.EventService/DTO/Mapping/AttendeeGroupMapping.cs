@@ -1,28 +1,23 @@
-﻿using TixTapGo.EventService.Entities;
+﻿using Riok.Mapperly.Abstractions;
+
+using TixTapGo.EventService.Entities;
 
 namespace TixTapGo.EventService.DTO.Mapping;
 
-internal static class AttendeeGroupMapping
+[Mapper]
+internal static partial class AttendeeGroupMapping
 {
-    public static GetAttendeeGroupResponse ToGetAttendeeGroupResponse(this AttendeeGroup entity)
-    {
-        return new GetAttendeeGroupResponse
-        {
-            Id = entity.Id,
-            Title = entity.Title,
-            Type = entity.Type,
-            Capacity = entity.Capacity,
-        };
-    }
+    [MapperIgnoreSource(nameof(AttendeeGroup.IsDeleted))]
+    [MapperIgnoreSource(nameof(AttendeeGroup.CreatedAt))]
+    [MapperIgnoreSource(nameof(AttendeeGroup.UpdatedAt))]
+    [MapperIgnoreSource(nameof(AttendeeGroup.EventId))]
+    [MapperIgnoreSource(nameof(AttendeeGroup.Event))]
+    public static partial GetAttendeeGroupResponse ToGetAttendeeGroupResponse(this AttendeeGroup entity);
 
-    public static AttendeeGroup ToEntity(this CreateAttendeeGroupRequest dto, Event @event)
-    {
-        return new AttendeeGroup
-        {
-            EventId = @event.Id,
-            Title = dto.Title,
-            Type = dto.Type!.Value,
-            Capacity = dto.Capacity
-        };
-    }
+    [MapperIgnoreTarget(nameof(AttendeeGroup.Id))]
+    [MapperIgnoreTarget(nameof(AttendeeGroup.Event))]
+    [MapValue(nameof(AttendeeGroup.EventId), Use=nameof(GetEventId))]
+    public static partial AttendeeGroup ToEntity(this CreateAttendeeGroupRequest dto);
+    
+    private static Guid GetEventId() => Guid.Empty;
 }

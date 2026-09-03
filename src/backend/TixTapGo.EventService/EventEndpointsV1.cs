@@ -32,7 +32,7 @@ internal static class EventEndpointsV1
             .Include(@event => @event.AttendeeGroups)
             .OrderBy(@event => @event.Id)
             .AsNoTracking()
-            .Select(e => e.ToGetEventResponse())
+            .ProjectToGetEventResponse()
             .ToListAsync(cancellationToken);
 
         return TypedResults.Ok(events);

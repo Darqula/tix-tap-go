@@ -1,37 +1,24 @@
-﻿using TixTapGo.EventService.Entities;
+﻿using Riok.Mapperly.Abstractions;
+
+using TixTapGo.EventService.Entities;
 
 namespace TixTapGo.EventService.DTO.Mapping;
 
-internal static class EventMapping
+[Mapper]
+[UseStaticMapper(typeof(AttendeeGroupMapping))]
+internal static partial class EventMapping
 {
-    public static GetEventResponse ToGetEventResponse(this Event entity)
-    {
-        return new GetEventResponse
-        {
-            Id = entity.Id,
-            Title = entity.Title,
-            Description = entity.Description,
-            Start = entity.Start,
-            Location = entity.Location,
-            AttendeeGroups = entity.AttendeeGroups.Select(groupModel => groupModel.ToGetAttendeeGroupResponse()),
-        };
-    }
+    public static partial IQueryable<GetEventResponse> ProjectToGetEventResponse(this IQueryable<Event> query);
+    
+    [MapperIgnoreSource(nameof(Event.IsDeleted))]
+    [MapperIgnoreSource(nameof(Event.CreatedAt))]
+    [MapperIgnoreSource(nameof(Event.UpdatedAt))]
+    public static partial GetEventResponse ToGetEventResponse(this Event entity);
 
-    public static Event ToEntity(this CreateEventRequest dto)
-    {
-        var @event = new Event()
-        {
-            Title = dto.Title,
-            Description = dto.Description,
-            Location = dto.Location,
-            Start = dto.Start!.Value.ToUniversalTime()
-        };
+    [MapperIgnoreTarget(nameof(Event.Id))]
+    [MapProperty(source: nameof(CreateEventRequest.Start), target: nameof(Event.Start), Use = nameof(ToEventStartDate))]
+    public static partial Event ToEntity(this CreateEventRequest dto);
 
-        if (dto.AttendeeGroups != null && dto.AttendeeGroups.Any())
-        {
-            @event.AttendeeGroups.AddRange(dto.AttendeeGroups.Select(groupDto => groupDto.ToEntity(@event)));
-        }
-
-        return @event;
-    }
+    [UserMapping(Default = false)]
+    private static DateTimeOffset ToEventStartDate(DateTimeOffset? startDateDto) => startDateDto!.Value.ToUniversalTime();
 }

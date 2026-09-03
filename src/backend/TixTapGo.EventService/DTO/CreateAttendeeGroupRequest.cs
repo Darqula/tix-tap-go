@@ -14,8 +14,7 @@ public sealed record CreateAttendeeGroupRequest
     [Required]
     [JsonConverter(typeof(JsonStringEnumConverter<SeatAssignmentType>))]
     public SeatAssignmentType? Type { get; set; }
-
-    [Required]
+    
     [Range(1, int.MaxValue)]
     public int Capacity { get; set; }
 }
