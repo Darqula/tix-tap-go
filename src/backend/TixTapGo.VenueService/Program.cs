@@ -1,8 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
 
-using OpenIddict.Abstractions;
-using OpenIddict.Validation.AspNetCore;
-
 using TixTapGo.VenueService;
 using TixTapGo.VenueService.DAL;
 
@@ -34,11 +31,7 @@ builder.Services.AddOpenIddict()
         options.UseAspNetCore();
     });
 
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("InternalOnly", policy => policy
-        .AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)
-        .RequireClaim(OpenIddictConstants.Claims.Subject, ["gateway"])
-    );
+builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
 
 var app = builder.Build();
 
@@ -47,7 +40,7 @@ app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi().AllowAnonymous();
     app.UseDeveloperExceptionPage();
 }
 
@@ -58,7 +51,6 @@ app.UseAuthorization();
 
 app
     .MapGroup("venues")
-    .RequireAuthorization("InternalOnly")
     .MapVenueEndpoints();
 
 app.Run();

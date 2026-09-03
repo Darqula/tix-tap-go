@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.ServiceDiscovery;
+
+using OpenIddict.Abstractions;
+using OpenIddict.Validation.AspNetCore;
 
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
@@ -18,6 +22,18 @@ public static class Extensions
 {
     private const string HealthEndpointPath = "/health";
     private const string AlivenessEndpointPath = "/alive";
+
+    /// <summary>
+    /// Name of the authorization policy that only callers authenticated as one of the client ids
+    /// passed to <see cref="AddInternalOnlyAuthorization{TBuilder}"/> satisfy.
+    /// </summary>
+    public const string InternalOnlyPolicy = "InternalOnly";
+
+    /// <summary>
+    /// OpenIddict client id the Gateway authenticates as when it exchanges its own client
+    /// credentials to call into internal services.
+    /// </summary>
+    public const string GatewayClientId = "gateway";
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
@@ -110,6 +126,40 @@ public static class Extensions
         return builder;
     }
 
+    /// <summary>
+    /// Registers the <see cref="InternalOnlyPolicy"/> authorization policy restricted to
+    /// callers authenticated as one of <paramref name="allowedClientIds"/>. Sets it as the
+    /// app's fallback policy
+    /// </summary>
+    /// <param name="allowedClientIds">
+    /// OpenIddict client ids (matched against the <c>sub</c> claim) allowed to call this service
+    /// </param>
+    public static TBuilder AddInternalOnlyAuthorization<TBuilder>(this TBuilder builder,
+        params string[] allowedClientIds)
+        where TBuilder : IHostApplicationBuilder
+    {
+        if (allowedClientIds.Length == 0)
+        {
+            throw new ArgumentException("At least one allowed client id must be specified.",
+                nameof(allowedClientIds));
+        }
+
+        var authorizationBuilder = builder.Services.AddAuthorizationBuilder()
+            .AddPolicy(InternalOnlyPolicy, policy => ConfigureInternalOnlyPolicy(policy, allowedClientIds));
+
+        var fallbackPolicy = new AuthorizationPolicyBuilder();
+        ConfigureInternalOnlyPolicy(fallbackPolicy, allowedClientIds);
+        authorizationBuilder.SetFallbackPolicy(fallbackPolicy.Build());
+
+        return builder;
+    }
+
+    private static void ConfigureInternalOnlyPolicy(AuthorizationPolicyBuilder policy,
+        IReadOnlyCollection<string> allowedClientIds) =>
+        policy
+            .AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)
+            .RequireClaim(OpenIddictConstants.Claims.Subject, allowedClientIds);
+
     public static WebApplication MapDefaultEndpoints(this WebApplication app)
     {
         // Adding health checks endpoints to applications in non-development environments has security implications.
@@ -117,11 +167,12 @@ public static class Extensions
         if (app.Environment.IsDevelopment())
         {
             // All health checks must pass for app to be considered ready to accept traffic after starting
-            app.MapHealthChecks(HealthEndpointPath);
+            // Anonymous: the orchestrator/dashboard probes these without a bearer token.
+            app.MapHealthChecks(HealthEndpointPath).AllowAnonymous();
 
             // Only health checks tagged with the "live" tag must pass for app to be considered alive
             app.MapHealthChecks(AlivenessEndpointPath,
-                new HealthCheckOptions { Predicate = r => r.Tags.Contains("live") });
+                new HealthCheckOptions { Predicate = r => r.Tags.Contains("live") }).AllowAnonymous();
         }
 
         return app;

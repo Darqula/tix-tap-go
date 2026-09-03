@@ -1,8 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
 
-using OpenIddict.Abstractions;
-using OpenIddict.Validation.AspNetCore;
-
 using TixTapGo.EventService;
 using TixTapGo.EventService.DAL;
 
@@ -33,11 +30,7 @@ builder.Services.AddOpenIddict()
         options.UseAspNetCore();
     });
 
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("InternalOnly", policy => policy
-        .AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)
-        .RequireClaim(OpenIddictConstants.Claims.Subject, ["gateway"])
-    );
+builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
 
 builder.Services.AddHttpLogging(logging =>
 {
@@ -54,7 +47,7 @@ app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.MapOpenApi().AllowAnonymous();
     app.UseDeveloperExceptionPage();
     app.UseHttpLogging();
 }
@@ -65,7 +58,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapGroup("events")
-    .RequireAuthorization("InternalOnly")
     .MapEventEndpoints();
 
 app.Run();
