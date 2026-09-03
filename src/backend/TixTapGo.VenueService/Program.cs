@@ -1,7 +1,8 @@
 using Microsoft.IdentityModel.Tokens;
 
-using TixTapGo.VenueService;
 using TixTapGo.VenueService.DAL;
+using TixTapGo.VenueService.Endpoints.SeatCategory;
+using TixTapGo.VenueService.Endpoints.Venue;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,7 +51,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app
-    .MapGroup("venues")
-    .MapVenueEndpoints();
+    .MapVenueEndpoints()
+    .MapSeatCategoryEndpoints();
 
 app.Run();

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TixTapGo.VenueService.DTO;
+namespace TixTapGo.VenueService.Endpoints.Venue.DTO;
 
-public class UpdateVenueRequest
+public record UpdateVenueRequest
 {
     [MaxLength(128)]
     public string? Title { get; set; }

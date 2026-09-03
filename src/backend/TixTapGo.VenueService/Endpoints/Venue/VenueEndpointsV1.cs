@@ -2,20 +2,22 @@
 using Microsoft.EntityFrameworkCore;
 
 using TixTapGo.VenueService.DAL;
-using TixTapGo.VenueService.DTO;
-using TixTapGo.VenueService.DTO.Mapping;
+using TixTapGo.VenueService.Endpoints.Venue.DTO;
 
-namespace TixTapGo.VenueService;
+namespace TixTapGo.VenueService.Endpoints.Venue;
 
 internal static class VenueEndpointsV1
 {
-    public static void MapVenueEndpoints(this RouteGroupBuilder groupBuilder)
+    public static RouteGroupBuilder MapVenueEndpoints(this IEndpointRouteBuilder groupBuilder)
     {
-        groupBuilder.MapGet("/", GetVenues).WithName("GetVenues");
-        groupBuilder.MapGet("/{id:guid}", GetVenue).WithName("GetVenueById");
-        groupBuilder.MapPost("/", CreateVenue).WithName("CreateVenue");
-        groupBuilder.MapPatch("/{id:guid}", PatchVenue).WithName("UpdateVenue");
-        groupBuilder.MapDelete("/{id:guid}", DeleteVenue).WithName("DeleteVenue");
+        var venueGroup = groupBuilder.MapGroup("venues");
+        venueGroup.MapGet("/", GetVenues).WithName("GetVenues");
+        venueGroup.MapGet("/{id:guid}", GetVenue).WithName("GetVenueById");
+        venueGroup.MapPost("/", CreateVenue).WithName("CreateVenue");
+        venueGroup.MapPatch("/{id:guid}", PatchVenue).WithName("UpdateVenue");
+        venueGroup.MapDelete("/{id:guid}", DeleteVenue).WithName("DeleteVenue");
+
+        return venueGroup;
     }
 
     public static async Task<Ok<List<GetVenueResponse>>> GetVenues(VenueDbContext dbContext,
@@ -24,7 +26,7 @@ internal static class VenueEndpointsV1
         var venues = await dbContext.Venues
             .OrderBy(venue => venue.Id)
             .AsNoTracking()
-            .Select(venue => venue.ToGetVenueResponse())
+            .ProjectToGetVenueResponses()
             .ToListAsync(cancellationToken);
 
         return TypedResults.Ok(venues);
@@ -49,7 +51,7 @@ internal static class VenueEndpointsV1
     }
 
     public static async Task<Results<Ok<GetVenueResponse>, NotFound>> PatchVenue(Guid id,
-        UpdateVenueRequest updateRequest, VenueDbContext dbContext)
+        UpdateVenueRequest updateVenueDto, VenueDbContext dbContext)
     {
         var venue = await dbContext.Venues.FindAsync(id);
         if (venue == null)
@@ -57,19 +59,19 @@ internal static class VenueEndpointsV1
             return TypedResults.NotFound();
         }
 
-        if (!string.IsNullOrWhiteSpace(updateRequest.Title))
+        if (!string.IsNullOrWhiteSpace(updateVenueDto.Title))
         {
-            venue.Title = updateRequest.Title;
+            venue.Title = updateVenueDto.Title;
         }
 
-        if (!string.IsNullOrWhiteSpace(updateRequest.Address))
+        if (!string.IsNullOrWhiteSpace(updateVenueDto.Address))
         {
-            venue.Address = updateRequest.Address;
+            venue.Address = updateVenueDto.Address;
         }
 
-        if (updateRequest.Description != null)
+        if (updateVenueDto.Description != null)
         {
-            venue.Description = updateRequest.Description;
+            venue.Description = updateVenueDto.Description;
         }
 
         await dbContext.SaveChangesAsync();

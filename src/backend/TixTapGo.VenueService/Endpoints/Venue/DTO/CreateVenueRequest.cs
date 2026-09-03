@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TixTapGo.VenueService.DTO;
+namespace TixTapGo.VenueService.Endpoints.Venue.DTO;
 
 public record CreateVenueRequest
 {
