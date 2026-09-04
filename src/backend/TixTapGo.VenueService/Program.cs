@@ -1,5 +1,6 @@
 using Microsoft.IdentityModel.Tokens;
 
+using TixTapGo.Shared.Exceptions;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.SeatCategory;
 using TixTapGo.VenueService.Endpoints.Venue;
@@ -33,18 +34,18 @@ builder.Services.AddOpenIddict()
     });
 
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
+builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
-app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi().AllowAnonymous();
     app.UseDeveloperExceptionPage();
 }
-
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

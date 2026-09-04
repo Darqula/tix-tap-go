@@ -2,6 +2,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using TixTapGo.EventService;
 using TixTapGo.EventService.DAL;
+using TixTapGo.Shared.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,7 @@ builder.Services.AddOpenIddict()
     });
 
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
+builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 
 builder.Services.AddHttpLogging(logging =>
 {
@@ -43,7 +45,6 @@ builder.Services.AddHttpLogging(logging =>
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
-app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
@@ -51,7 +52,7 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     app.UseHttpLogging();
 }
-
+app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
