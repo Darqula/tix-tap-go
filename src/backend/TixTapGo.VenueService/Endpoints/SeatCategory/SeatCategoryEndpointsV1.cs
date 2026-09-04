@@ -8,9 +8,9 @@ namespace TixTapGo.VenueService.Endpoints.SeatCategory;
 
 internal static class SeatCategoryEndpointsV1
 {
-    public static RouteGroupBuilder MapSeatCategoryEndpoints(this IEndpointRouteBuilder groupBuilder)
+    public static RouteGroupBuilder MapSeatCategoryEndpoints(this IEndpointRouteBuilder routeBuilder)
     {
-        var categoryGroup = groupBuilder.MapGroup("/{venueId:guid}/seat-categories");
+        var categoryGroup = routeBuilder.MapGroup("/{venueId:guid}/seat-categories");
         categoryGroup.MapGet("/", GetSeatCategories).WithName("GetSeatCategories");
         categoryGroup.MapGet("/{id:guid}", GetSeatCategory).WithName("GetSeatCategoryById");
         categoryGroup.MapPost("/", CreateSeatCategory).WithName("CreateSeatCategory");

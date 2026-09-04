@@ -3,14 +3,15 @@ using Microsoft.EntityFrameworkCore;
 
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Venue.DTO;
+using TixTapGo.VenueService.Entities;
 
 namespace TixTapGo.VenueService.Endpoints.Venue;
 
 internal static class VenueEndpointsV1
 {
-    public static RouteGroupBuilder MapVenueEndpoints(this IEndpointRouteBuilder groupBuilder)
+    public static RouteGroupBuilder MapVenueEndpoints(this IEndpointRouteBuilder routeBuilder)
     {
-        var venueGroup = groupBuilder.MapGroup("venues");
+        var venueGroup = routeBuilder.MapGroup("venues");
         venueGroup.MapGet("/", GetVenues).WithName("GetVenues");
         venueGroup.MapGet("/{id:guid}", GetVenue).WithName("GetVenueById");
         venueGroup.MapPost("/", CreateVenue).WithName("CreateVenue");
@@ -32,12 +33,23 @@ internal static class VenueEndpointsV1
         return TypedResults.Ok(venues);
     }
 
-    public static async Task<Results<Ok<GetVenueResponse>, NotFound>> GetVenue(Guid id, VenueDbContext dbContext,
+    public static async Task<Results<Ok<GetVenueDetailedResponse>, NotFound>> GetVenue(Guid id, VenueDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        var venue = await dbContext.Venues.FindAsync([id], cancellationToken);
-        return venue != null
-            ? TypedResults.Ok(venue.ToGetVenueResponse())
+        var result = await dbContext.Venues
+            .Where(venue => venue.Id == id)
+            .Select(venue => new
+            {
+                Venue = venue,
+                CurrentMapVersion = venue.SeatingMapVersions!.AsQueryable()
+                    .Where(version => version.VenueId == id)
+                    .Where(VenueSeatingMapVersion.IsCurrentActive)
+                    .SingleOrDefault()
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+        
+        return result?.Venue != null
+            ? TypedResults.Ok(result.Venue.ToGetVenueDetailedResponse(result.CurrentMapVersion?.Id))
             : TypedResults.NotFound();
     }
 

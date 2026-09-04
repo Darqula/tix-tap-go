@@ -13,13 +13,17 @@ internal static partial class VenueMappings
     [MapperIgnoreSource(nameof(Entities.Venue.UpdatedAt))]
     [MapperIgnoreSource(nameof(Entities.Venue.IsDeleted))]
     [MapperIgnoreSource(nameof(Entities.Venue.SeatCategories))]
-    [MapperIgnoreSource(nameof(Entities.Venue.CurrentSeatingMap))]
     [MapperIgnoreSource(nameof(Entities.Venue.SeatingMapVersions))]
-    [MapProperty(nameof(Entities.Venue.CurrentSeatingMapId), nameof(GetVenueResponse.SeatingMapVersionId))]
     public static partial GetVenueResponse ToGetVenueResponse(this Entities.Venue entity);
 
+    [MapperIgnoreSource(nameof(Entities.Venue.CreatedAt))]
+    [MapperIgnoreSource(nameof(Entities.Venue.UpdatedAt))]
+    [MapperIgnoreSource(nameof(Entities.Venue.IsDeleted))]
+    [MapperIgnoreSource(nameof(Entities.Venue.SeatCategories))]
+    [MapperIgnoreSource(nameof(Entities.Venue.SeatingMapVersions))]
+    public static partial GetVenueDetailedResponse ToGetVenueDetailedResponse(this Entities.Venue entity,
+        Guid? seatingMapVersionId);
+
     [MapperIgnoreTarget(nameof(Entities.Venue.Id))]
-    [MapperIgnoreTarget(nameof(Entities.Venue.CurrentSeatingMap))]
-    [MapperIgnoreTarget(nameof(Entities.Venue.CurrentSeatingMapId))]
     public static partial Entities.Venue ToEntity(this CreateVenueRequest dto);
 }

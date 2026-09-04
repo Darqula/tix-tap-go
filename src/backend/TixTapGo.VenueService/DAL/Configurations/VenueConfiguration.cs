@@ -20,12 +20,6 @@ internal sealed class VenueConfiguration : IEntityTypeConfiguration<Venue>
             .WithOne(version => version.Venue)
             .HasForeignKey(version => version.VenueId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder
-            .HasOne(venue => venue.CurrentSeatingMap)
-            .WithOne()
-            .HasForeignKey<Venue>(venue => venue.CurrentSeatingMapId)
-            .OnDelete(DeleteBehavior.SetNull);
         
         builder.HasMany(venue => venue.SeatCategories)
             .WithOne(category => category.Venue)

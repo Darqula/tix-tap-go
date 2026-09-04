@@ -23,7 +23,7 @@ internal sealed class VenueDbContext(DbContextOptions<VenueDbContext> options) :
         }
 
         modelBuilder.ApplyConfiguration(new VenueConfiguration());
-        modelBuilder.ApplyConfiguration(new VenueSeatMapVersionConfiguration(this));
+        modelBuilder.ApplyConfiguration(new VenueSeatingMapVersionConfiguration());
         modelBuilder.ApplyConfiguration(new VenueSeatConfiguration());
         modelBuilder.ApplyConfiguration(new SeatCategoryConfiguration());
     }

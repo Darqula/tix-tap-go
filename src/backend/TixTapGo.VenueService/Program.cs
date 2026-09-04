@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using TixTapGo.Shared.Exceptions;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.SeatCategory;
+using TixTapGo.VenueService.Endpoints.SeatingMapVersion;
 using TixTapGo.VenueService.Endpoints.Venue;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,8 +52,10 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app
-    .MapVenueEndpoints()
-    .MapSeatCategoryEndpoints();
+var venueEndpoints = app
+    .MapVenueEndpoints();
+
+venueEndpoints.MapSeatCategoryEndpoints();
+venueEndpoints.MapSeatingMapVersionEndpoints();
 
 app.Run();
