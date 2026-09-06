@@ -4,8 +4,8 @@ namespace TixTapGo.VenueService.Entities;
 
 internal sealed class VenueSeat : EntityBase
 {
-    public required Guid VenueSeatMapVersionId { get; set; }
-    public VenueSeatingMapVersion VenueSeatingMapVersion { get; set; } = null!;
+    public required Guid SeatingMapVersionId { get; set; }
+    public VenueSeatingMapVersion SeatingMapVersion { get; set; } = null!;
 
     public required Guid CategoryId { get; set; }
     public SeatCategory Category { get; set; } = null!;

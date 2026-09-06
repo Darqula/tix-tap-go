@@ -17,7 +17,7 @@ internal sealed class VenueSeatConfiguration : IEntityTypeConfiguration<VenueSea
         builder
             .HasIndex(seat => new
             {
-                seat.VenueSeatMapVersionId,
+                seat.SeatingMapVersionId,
                 seat.RowNumber,
                 seat.SeatNumber
             })
@@ -25,7 +25,7 @@ internal sealed class VenueSeatConfiguration : IEntityTypeConfiguration<VenueSea
         builder
             .HasIndex(seat => new
             {
-                seat.VenueSeatMapVersionId,
+                seat.SeatingMapVersionId,
                 seat.MapPositionX,
                 seat.MapPositionY
             })

@@ -50,16 +50,14 @@ internal static class SeatingMapVersionEndpointsV1
             : TypedResults.NotFound();
     }
 
-    public static async Task<Results<Ok<GetSeatingMapVersionResponse>, NoContent>> GetCurrentSeatingMapVersion(
+    public static async Task<Ok<GetSeatingMapVersionResponse?>> GetCurrentSeatingMapVersion(
         Guid venueId, VenueDbContext dbContext, CancellationToken cancellationToken)
     {
         var currentMapVersion = await dbContext.VenueSeatingMapVersions
             .Where(VenueSeatingMapVersion.IsCurrentActive)
             .SingleOrDefaultAsync(version => version.VenueId == venueId, cancellationToken);
 
-        return currentMapVersion != null
-            ? TypedResults.Ok(currentMapVersion.ToGetSeatingMapVersionResponse())
-            : TypedResults.NoContent();
+        return TypedResults.Ok<GetSeatingMapVersionResponse?>(currentMapVersion?.ToGetSeatingMapVersionResponse());
     }
 
     public static async Task<Results<CreatedAtRoute<GetSeatingMapVersionResponse>, ProblemHttpResult>>

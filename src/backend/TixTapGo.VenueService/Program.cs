@@ -2,6 +2,8 @@ using Microsoft.IdentityModel.Tokens;
 
 using TixTapGo.Shared.Exceptions;
 using TixTapGo.VenueService.DAL;
+using TixTapGo.VenueService.Endpoints.Seat;
+using TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
 using TixTapGo.VenueService.Endpoints.SeatCategory;
 using TixTapGo.VenueService.Endpoints.SeatingMapVersion;
 using TixTapGo.VenueService.Endpoints.Venue;
@@ -36,6 +38,7 @@ builder.Services.AddOpenIddict()
 
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+builder.Services.AddTransient<SeatExcelTemplate>();
 
 var app = builder.Build();
 
@@ -56,6 +59,8 @@ var venueEndpoints = app
     .MapVenueEndpoints();
 
 venueEndpoints.MapSeatCategoryEndpoints();
-venueEndpoints.MapSeatingMapVersionEndpoints();
+venueEndpoints
+    .MapSeatingMapVersionEndpoints()
+    .MapSeatEndpoints();
 
 app.Run();
