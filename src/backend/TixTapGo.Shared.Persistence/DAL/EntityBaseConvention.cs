@@ -32,6 +32,20 @@ public class EntityBaseConvention : IModelFinalizingConvention
                 entityType.FindProperty(nameof(EntityBase.CreatedAt))?.Builder.HasDefaultValueSql("now()");
                 entityType.FindProperty(nameof(EntityBase.UpdatedAt))?.Builder.HasDefaultValueSql("now()");
                 entityType.FindProperty(nameof(EntityBase.IsDeleted))?.Builder.HasDefaultValue(false);
+
+                foreach (var entityIndex in entityType.GetIndexes())
+                {
+                    var currentIndexFilter = entityIndex.GetFilter();
+                    string notDeletedFilter = $"\"{nameof(EntityBase.IsDeleted)}\" = false";
+                    if (currentIndexFilter == null)
+                    {
+                        entityIndex.SetFilter(notDeletedFilter);
+                    }
+                    else if (!currentIndexFilter.Contains($"\"{nameof(EntityBase.IsDeleted)}\""))
+                    {
+                        entityIndex.SetFilter($"{currentIndexFilter} AND {notDeletedFilter}");
+                    }
+                }
             }
         }
     }

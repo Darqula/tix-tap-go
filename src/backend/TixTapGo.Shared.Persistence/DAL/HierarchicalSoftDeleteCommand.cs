@@ -93,7 +93,7 @@ public class HierarchicalSoftDeleteCommand(DbContext dbContext)
         return result.Cast<object>().ToList();
     }
 
-    private async Task<List<object>> GetDependantsByNavigationAsync(INavigation navigationFromPrincipal,
+    private static async Task<List<object>> GetDependantsByNavigationAsync(INavigation navigationFromPrincipal,
         EntityEntry entry)
     {
         List<object> dependantEntities = new();
