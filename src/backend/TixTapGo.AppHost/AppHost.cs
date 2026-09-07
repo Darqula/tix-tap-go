@@ -32,12 +32,18 @@ var eventService = builder
     .WithReference(authService)
     .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
 
+var eventServiceWorker = builder
+    .AddProject<Projects.TixTapGo_EventService_Worker>("event-service-worker")
+    .WithParentRelationship(eventService)
+    .WithReference(eventsDb);
+
 var eventsDbMigration = eventService
     .AddEFMigrations("eventsdb-migration")
     .RunDatabaseUpdateOnStart()
     .WaitFor(eventsDb);
 
 eventService.WaitForCompletion(eventsDbMigration);
+eventServiceWorker.WaitForCompletion(eventsDbMigration);
 
 var venueService = builder.AddProject<Projects.TixTapGo_VenueService>("venue-service")
     .WithReference(venuesDb)

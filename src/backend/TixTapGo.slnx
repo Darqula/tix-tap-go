@@ -2,6 +2,7 @@
   <Project Path="TixTapGo.AppHost/TixTapGo.AppHost.csproj"/>
   <Project Path="TixTapGo.AuthService.Cli/TixTapGo.AuthService.Cli.csproj"/>
   <Project Path="TixTapGo.AuthService/TixTapGo.AuthService.csproj"/>
+  <Project Path="TixTapGo.EventService.Worker/TixTapGo.EventService.Worker.csproj"/>
   <Project Path="TixTapGo.EventService/TixTapGo.EventService.csproj"/>
   <Project Path="TixTapGo.Gateway/TixTapGo.Gateway.csproj"/>
   <Project Path="TixTapGo.ServiceDefaults/TixTapGo.ServiceDefaults.csproj"/>

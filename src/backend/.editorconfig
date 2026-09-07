@@ -88,6 +88,13 @@ dotnet_remove_unnecessary_suppression_exclusions = none
 # Disable namespace names conflict warning
 dotnet_diagnostic.CA1716.severity = none
 
+# Disable "Use the LoggerMessage delegates" performance suggestion
+dotnet_diagnostic.CA1848.severity = none
+
+# Disable "Avoid potentially expensive logging"
+# .NET 11 fixes this
+dotnet_diagnostic.CA1873.severity = none
+
 #### C# Coding Conventions ####
 [*.cs]
 

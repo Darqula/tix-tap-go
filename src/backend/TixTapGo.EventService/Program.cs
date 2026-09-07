@@ -1,7 +1,10 @@
+using Hangfire;
+
 using Microsoft.IdentityModel.Tokens;
 
 using TixTapGo.EventService;
 using TixTapGo.EventService.DAL;
+using TixTapGo.EventService.Jobs;
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Exceptions;
 
@@ -36,6 +39,8 @@ builder.Services.AddOpenIddict()
         options.UseAspNetCore();
     });
 
+builder.Services.AddHangfireConfigured(builder.Configuration.GetConnectionString("eventsdb"));
+
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 
@@ -47,8 +52,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi().AllowAnonymous();
     app.UseDeveloperExceptionPage();
-    app.UseHttpLogging();
+    app.MapHangfireDashboard("/events/hangfire").RequireAuthorization(Extensions.InternalOnlyPolicy);
 }
+
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
@@ -57,5 +63,7 @@ app.UseAuthorization();
 
 app.MapGroup("events")
     .MapEventEndpoints();
+
+app.RegisterJobs();
 
 app.Run();

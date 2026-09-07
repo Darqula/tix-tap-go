@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <PropertyGroup>
+    <UserSecretsId>dotnet-TixTapGo.EventService.Worker-93c714d2-9231-411d-bbcb-9c91b5667348</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Hangfire.AspNetCore"/>
+    <PackageReference Include="Hangfire.Core"/>
+    <PackageReference Include="Hangfire.PostgreSql"/>
+    <PackageReference Include="Microsoft.Extensions.Hosting"/>
+    <PackageReference Include="Newtonsoft.Json"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TixTapGo.EventService\TixTapGo.EventService.csproj"/>
+    <ProjectReference Include="..\TixTapGo.ServiceDefaults\TixTapGo.ServiceDefaults.csproj"/>
+  </ItemGroup>
+</Project>
