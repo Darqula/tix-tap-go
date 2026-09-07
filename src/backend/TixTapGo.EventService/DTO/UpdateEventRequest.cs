@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-using TixTapGo.Shared.Validation;
+using TixTapGo.EventService.Enums;
 
 namespace TixTapGo.EventService.DTO;
 
@@ -11,9 +11,12 @@ public sealed record UpdateEventRequest
 
     [MaxLength(1024)]
     public string? Description { get; set; }
-
-    [FutureDate]
+    
     public DateTimeOffset? Start { get; set; }
+    
+    public DateTimeOffset? End { get; set; }
+    
+    public EventStatus? Status { get; set; }
 
     [MaxLength(256)]
     public string? Location { get; set; }

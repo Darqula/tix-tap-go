@@ -1,5 +1,6 @@
 using Microsoft.IdentityModel.Tokens;
 
+using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Exceptions;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Seat;
@@ -14,9 +15,12 @@ builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<VenueDbContext>("venuesdb");
 
 builder.Services
-    .AddOpenApi()
+    .AddOpenApi(o => o.AddOperationTransformer<CaseInsensitiveEnumParameterTransformer>())
     .AddProblemDetails()
     .AddValidation();
+
+builder.Services.ConfigureHttpJsonOptions(o =>
+    o.SerializerOptions.Converters.Add(new CaseInsensitiveEnumConverterFactory()));
 
 builder.Services.AddOpenIddict()
     .AddValidation(options =>
@@ -49,6 +53,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi().AllowAnonymous();
     app.UseDeveloperExceptionPage();
 }
+
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 

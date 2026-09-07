@@ -5,6 +5,10 @@ using TixTapGo.EventService.DTO.Mapping;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
+using TixTapGo.EventService.Enums;
+using TixTapGo.Shared.Converters;
+using TixTapGo.Shared.Persistence.Queries;
+
 namespace TixTapGo.EventService;
 
 internal static class EventEndpointsV1
@@ -25,10 +29,13 @@ internal static class EventEndpointsV1
             .WithName("DeleteEvent");
     }
 
-    internal static async Task<Ok<List<GetEventResponse>>> GetEvents(EventDbContext dbContext,
+    internal static async Task<Ok<List<GetEventResponse>>> GetEvents(CaseInsensitiveEnum<EventStatus>[] status,
+        EventDbContext dbContext,
         CancellationToken cancellationToken)
     {
+        EventStatus[] statuses = status.Select(s => s.Value).ToArray();
         var events = await dbContext.Events
+            .WhereIf(statuses.Length > 0, @event => statuses.Contains(@event.Status))
             .Include(@event => @event.AttendeeGroups)
             .OrderBy(@event => @event.Id)
             .AsNoTracking()
@@ -51,17 +58,25 @@ internal static class EventEndpointsV1
             : TypedResults.NotFound();
     }
 
-    internal static async Task<CreatedAtRoute<GetEventResponse>> CreateEvent(CreateEventRequest createEventDto,
-        EventDbContext dbContext)
+    internal static async Task<Results<CreatedAtRoute<GetEventResponse>, ValidationProblem>> CreateEvent(
+        CreateEventRequest createEventDto, EventDbContext dbContext)
     {
-        var createdEvent = dbContext.Events.Add(createEventDto.ToEntity());
+        var creatingEvent = createEventDto.ToEntity();
+        if (!creatingEvent.Validate(out var errorsDictionary))
+        {
+            return TypedResults.ValidationProblem(errorsDictionary.ToValidationProblemPayload());
+        }
+
+        var createdEventEntry = dbContext.Events.Add(creatingEvent);
+
         await dbContext.SaveChangesAsync();
-        return TypedResults.CreatedAtRoute(createdEvent.Entity.ToGetEventResponse(), "GetEventById",
-            new { id = createdEvent.Entity.Id });
+        return TypedResults.CreatedAtRoute(createdEventEntry.Entity.ToGetEventResponse(), "GetEventById",
+            new { id = createdEventEntry.Entity.Id });
     }
 
-    internal static async Task<Results<Ok<GetEventResponse>, NotFound>> PatchEvent(Guid id,
-        UpdateEventRequest updateRequest, EventDbContext dbContext, CancellationToken cancellationToken)
+    internal static async Task<Results<Ok<GetEventResponse>, NotFound, ProblemHttpResult, ValidationProblem>>
+        PatchEvent(Guid id, UpdateEventRequest updateRequest, EventDbContext dbContext,
+            CancellationToken cancellationToken)
     {
         var @event = await dbContext.Events.FindAsync([id], CancellationToken.None);
         if (@event == null)
@@ -87,6 +102,21 @@ internal static class EventEndpointsV1
         if (updateRequest.Start is { } newStart)
         {
             @event.Start = newStart;
+        }
+
+        if (updateRequest.End is { } newEnd)
+        {
+            @event.End = newEnd;
+        }
+
+        if (updateRequest.Status is { } newStatus)
+        {
+            @event.Status = newStatus;
+        }
+
+        if (!@event.Validate(out var errorsDictionary))
+        {
+            return TypedResults.ValidationProblem(errorsDictionary.ToValidationProblemPayload());
         }
 
         await dbContext.SaveChangesAsync(CancellationToken.None);

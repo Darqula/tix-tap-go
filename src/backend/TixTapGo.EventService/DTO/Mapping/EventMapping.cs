@@ -1,6 +1,7 @@
 ﻿using Riok.Mapperly.Abstractions;
 
 using TixTapGo.EventService.Entities;
+using TixTapGo.EventService.Enums;
 
 namespace TixTapGo.EventService.DTO.Mapping;
 
@@ -16,6 +17,7 @@ internal static partial class EventMapping
     public static partial GetEventResponse ToGetEventResponse(this Event entity);
 
     [MapperIgnoreTarget(nameof(Event.Id))]
+    [MapValue(nameof(Event.Status), EventStatus.Upcoming)]
     [MapProperty(source: nameof(CreateEventRequest.Start), target: nameof(Event.Start), Use = nameof(ToEventStartDate))]
     public static partial Event ToEntity(this CreateEventRequest dto);
 

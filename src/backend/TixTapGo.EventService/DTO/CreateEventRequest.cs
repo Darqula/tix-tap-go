@@ -17,6 +17,10 @@ public sealed record CreateEventRequest
     [Required]
     [FutureDate]
     public DateTimeOffset? Start { get; set; }
+    
+    [Required]
+    [FutureDate]
+    public DateTimeOffset? End { get; set; }
 
     [Required]
     [MaxLength(256)]

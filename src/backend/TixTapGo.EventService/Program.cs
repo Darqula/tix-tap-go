@@ -2,6 +2,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using TixTapGo.EventService;
 using TixTapGo.EventService.DAL;
+using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,9 +11,12 @@ builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<EventDbContext>("eventsdb");
 
 builder.Services
-    .AddOpenApi()
+    .AddOpenApi(o => o.AddOperationTransformer<CaseInsensitiveEnumParameterTransformer>())
     .AddProblemDetails()
     .AddValidation();
+
+builder.Services.ConfigureHttpJsonOptions(o =>
+    o.SerializerOptions.Converters.Add(new CaseInsensitiveEnumConverterFactory()));
 
 builder.Services.AddOpenIddict()
     .AddValidation(options =>
@@ -23,6 +27,7 @@ builder.Services.AddOpenIddict()
         {
             throw new InvalidOperationException("Authentication:ClientCredentialsEncryptionKey is not configured");
         }
+
         options.SetIssuer("https://auth-service");
         options.AddEncryptionKey(new SymmetricSecurityKey(
             Convert.FromBase64String(clientCredentialsEncryptionKey)));
@@ -33,14 +38,6 @@ builder.Services.AddOpenIddict()
 
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
-
-builder.Services.AddHttpLogging(logging =>
-{
-    logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
-    
-    logging.RequestBodyLogLimit = 4096; 
-    logging.ResponseBodyLogLimit = 4096;
-});
 
 var app = builder.Build();
 

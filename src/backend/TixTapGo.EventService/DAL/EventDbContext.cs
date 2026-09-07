@@ -1,4 +1,5 @@
-﻿using TixTapGo.EventService.Entities;
+﻿using TixTapGo.EventService.DAL.Configurations;
+using TixTapGo.EventService.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -15,12 +16,7 @@ internal sealed class EventDbContext(DbContextOptions<EventDbContext> options) :
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<AttendeeGroup>()
-            .ToTable(t =>
-                t.HasCheckConstraint("CK_AttendeeGroup_Capacity_Positive", "\"Capacity\" > 0")
-            )
-            .HasOne(attendeeGroup => attendeeGroup.Event)
-            .WithMany(@event => @event.AttendeeGroups)
-            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.ApplyConfiguration(new EventConfiguration());
+        modelBuilder.ApplyConfiguration(new AttendeeGroupConfiguration());
     }
 }
