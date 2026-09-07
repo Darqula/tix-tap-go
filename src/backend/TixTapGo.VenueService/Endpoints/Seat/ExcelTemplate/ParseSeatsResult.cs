@@ -1,4 +1,6 @@
-﻿namespace TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
+﻿using TixTapGo.Shared.Validation;
+
+namespace TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
 
 internal sealed record ParseSeatsResult
 {
@@ -12,21 +14,28 @@ internal sealed record ParseSeatsResult
         };
     }
 
-    public static ParseSeatsResult Fail(int version, List<ParsingError> errors, List<ParsedSeatDto>? partialSeatDtos = null)
+    public static ParseSeatsResult Fail(int version, List<ParsingError> errors,
+        List<ParsedSeatDto>? partialSeatDtos = null)
     {
+        var errorsDict = new ValidationErrorsDictionary();
+        foreach (ParsingError parsingError in errors)
+        {
+            errorsDict.AddError($"Line: {parsingError.Row}", parsingError.Message);
+        }
+
         return new ParseSeatsResult()
         {
             IsSuccess = false,
             Version = version,
-            Errors = errors,
+            Errors = errorsDict,
             Seats = partialSeatDtos
         };
     }
-    
+
     public bool IsSuccess { get; init; }
     public int Version { get; init; }
     public List<ParsedSeatDto>? Seats { get; init; }
-    public List<ParsingError>? Errors { get; init; }
+    public ValidationErrorsDictionary? Errors { get; init; }
 
     public sealed record ParsingError(int Row, string Message);
 }

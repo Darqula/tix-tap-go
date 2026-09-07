@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using TixTapGo.Shared.Validation;
 using TixTapGo.VenueService.Entities;
 
 namespace TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
@@ -32,9 +33,9 @@ internal sealed class ParsedSeatValidator
         }
     }
 
-    public bool Validate(IList<ParsedSeatDto> dtos, out List<ParseSeatsResult.ParsingError> errors)
+    public bool Validate(IList<ParsedSeatDto> dtos, out ValidationErrorsDictionary errors)
     {
-        errors = new();
+        var errorsList = new List<ParseSeatsResult.ParsingError>();
         bool isSuccessful = true;
         foreach (var dto in dtos)
         {
@@ -42,17 +43,22 @@ internal sealed class ParsedSeatValidator
             {
                 if (!ValidateSeatDto(dto, out ParseSeatsResult.ParsingError? error))
                 {
-                    if (error != null) errors.Add(error);
+                    if (error != null) errorsList.Add(error);
                     isSuccessful = false;
                 }
             }
             catch (Exception e)
             {
                 isSuccessful = false;
-                errors.Add(new ParseSeatsResult.ParsingError(dto.SheetRowNumber, e.Message));
+                errorsList.Add(new ParseSeatsResult.ParsingError(dto.SheetRowNumber, e.Message));
             }
         }
 
+        errors = new ValidationErrorsDictionary();
+        foreach (var error in errorsList)
+        {
+            errors.AddError($"Line: {error.Row}", error.Message);
+        }
         return isSuccessful;
     }
 

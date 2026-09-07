@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
 
+using TixTapGo.Shared.Validation;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Seat.DTO;
 using TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
@@ -46,7 +47,7 @@ internal static class SeatEndpointsV1
         );
     }
 
-    public static async Task<Results<Ok<UploadTemplateResponse>, ProblemHttpResult>> UploadSeatsTemplate(
+    public static async Task<Results<Ok<UploadTemplateResponse>, ProblemHttpResult, ValidationProblem>> UploadSeatsTemplate(
         Guid venueId, Guid mapVersionId, HttpRequest request, VenueDbContext dbContext, SeatExcelTemplate template,
         CancellationToken cancellationToken)
     {
@@ -99,11 +100,9 @@ internal static class SeatEndpointsV1
         var parsingResults = await template.ParseSeatsFromRequestAsync(request.Body, cancellationToken);
         if (!parsingResults.IsSuccess)
         {
-            return TypedResults.Problem(
-                detail: "Parse failed due to errors",
-                statusCode: StatusCodes.Status400BadRequest,
-                extensions: new Dictionary<string, object?> { { "errors", parsingResults.Errors } }
-            );
+            return TypedResults.ValidationProblem(
+                parsingResults.Errors?.ToValidationProblemPayload() ?? new(),
+                "Parse failed due to errors");
         }
 
         if (parsingResults.Seats == null || parsingResults.Seats.Count == 0)
@@ -118,13 +117,9 @@ internal static class SeatEndpointsV1
             .ToListAsync(CancellationToken.None);
 
         var validator = new ParsedSeatValidator([..categoriesByNames.Keys], existingSeats);
-        if (!validator.Validate(parsingResults.Seats, out List<ParseSeatsResult.ParsingError> errors))
+        if (!validator.Validate(parsingResults.Seats, out ValidationErrorsDictionary errors))
         {
-            return TypedResults.Problem(
-                detail: "Validation failed due to errors",
-                statusCode: StatusCodes.Status400BadRequest,
-                extensions: new Dictionary<string, object?> { { "errors", errors } }
-            );
+            return TypedResults.ValidationProblem(errors.ToValidationProblemPayload());
         }
 
         var seatsToInsert = parsingResults.Seats
