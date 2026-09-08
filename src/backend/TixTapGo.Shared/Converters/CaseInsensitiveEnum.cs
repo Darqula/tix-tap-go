@@ -1,6 +1,10 @@
-﻿namespace TixTapGo.Shared.Converters;
+﻿using System.Diagnostics.CodeAnalysis;
 
-public struct CaseInsensitiveEnum<T> : IParsable<CaseInsensitiveEnum<T>> where T : struct, Enum
+namespace TixTapGo.Shared.Converters;
+
+[SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix")]
+[SuppressMessage("Design", "CA1000:Do not declare static members on generic types")]
+public readonly struct CaseInsensitiveEnum<T> : IParsable<CaseInsensitiveEnum<T>> where T : struct, Enum
 {
     public T Value { get; }
     
