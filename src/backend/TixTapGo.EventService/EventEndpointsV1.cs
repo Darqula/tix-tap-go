@@ -1,4 +1,7 @@
-﻿using TixTapGo.EventService.DAL;
+﻿using System.Diagnostics;
+using System.Net;
+
+using TixTapGo.EventService.DAL;
 using TixTapGo.EventService.DTO;
 using TixTapGo.EventService.DTO.Mapping;
 
@@ -6,6 +9,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 using TixTapGo.EventService.Enums;
+using TixTapGo.EventService.Integrations.InternalServices.VenueService;
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Persistence.Queries;
 
@@ -30,13 +34,12 @@ internal static class EventEndpointsV1
     }
 
     internal static async Task<Ok<List<GetEventResponse>>> GetEvents(CaseInsensitiveEnum<EventStatus>[] status,
-        EventDbContext dbContext,
-        CancellationToken cancellationToken)
+        Guid[] venue, EventDbContext dbContext, CancellationToken cancellationToken)
     {
         EventStatus[] statuses = status.Select(s => s.Value).ToArray();
         var events = await dbContext.Events
             .WhereIf(statuses.Length > 0, @event => statuses.Contains(@event.Status))
-            .Include(@event => @event.AttendeeGroups)
+            .WhereIf(venue.Length > 0, @event => venue.Contains(@event.VenueId))
             .OrderBy(@event => @event.Id)
             .AsNoTracking()
             .ProjectToGetEventResponse()
@@ -58,13 +61,25 @@ internal static class EventEndpointsV1
             : TypedResults.NotFound();
     }
 
-    internal static async Task<Results<CreatedAtRoute<GetEventResponse>, ValidationProblem>> CreateEvent(
-        CreateEventRequest createEventDto, EventDbContext dbContext)
+    internal static async Task<Results<CreatedAtRoute<GetEventResponse>, ValidationProblem, ProblemHttpResult>>
+        CreateEvent(CreateEventRequest createEventDto, EventDbContext dbContext,
+            VenueServiceHttpClient venueServiceClient)
     {
         var creatingEvent = createEventDto.ToEntity();
         if (!creatingEvent.Validate(out var errorsDictionary))
         {
             return TypedResults.ValidationProblem(errorsDictionary.ToValidationProblemPayload());
+        }
+
+        var venueValidationProblem = await ValidateVenueRemote(createEventDto.VenueId, venueServiceClient);
+        if (venueValidationProblem != null)
+        {
+            return venueValidationProblem.Result switch
+            {
+                ValidationProblem vp => vp,
+                ProblemHttpResult pr => pr,
+                _ => throw new UnreachableException()
+            };
         }
 
         var createdEventEntry = dbContext.Events.Add(creatingEvent);
@@ -143,5 +158,32 @@ internal static class EventEndpointsV1
         dbContext.Events.Remove(@event);
         await dbContext.SaveChangesAsync();
         return TypedResults.NoContent();
+    }
+    
+    private static async Task<Results<ValidationProblem, ProblemHttpResult>?> ValidateVenueRemote(Guid venueId,
+        VenueServiceHttpClient venueHttpClient, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var response = await venueHttpClient.GetVenueAsync(venueId, cancellationToken);
+            return null;
+        }
+        catch (HttpRequestException hre) when ((int?)hre.StatusCode is >= 400 and < 500)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                [nameof(CreateEventRequest.VenueId)] = [hre.Message]
+            });
+        }
+        catch (HttpRequestException hre)
+        {
+            return TypedResults.Problem(
+                detail: "Venue service error",
+                statusCode: StatusCodes.Status502BadGateway,
+                extensions: new Dictionary<string, object?>
+                {
+                    [hre.StatusCode?.ToString() ?? "0"] = new[] { hre.Message }
+                });
+        }
     }
 }

@@ -6,6 +6,9 @@ namespace TixTapGo.EventService.Entities;
 
 internal sealed class Event : EntityBase
 {
+    public required Guid VenueId { get; set; }
+    public bool VenuePendingResolution { get; set; }
+    
     public required string Title { get; set; }
 
     public required string Description { get; set; }
@@ -23,6 +26,8 @@ internal sealed class Event : EntityBase
     {
         errors = new();
 
+        if (VenueId == Guid.Empty)
+            errors.AddError(nameof(VenueId), "VenueId is required");
         if (Start > End)
             errors.AddError(nameof(End), "End date must be after start date");
         if (End < DateTimeOffset.UtcNow && Status == EventStatus.Upcoming)

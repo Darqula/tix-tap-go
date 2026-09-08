@@ -17,6 +17,7 @@ internal static partial class EventMapping
     public static partial GetEventResponse ToGetEventResponse(this Event entity);
 
     [MapperIgnoreTarget(nameof(Event.Id))]
+    [MapperIgnoreTarget(nameof(Event.VenuePendingResolution))]
     [MapValue(nameof(Event.Status), EventStatus.Upcoming)]
     [MapProperty(source: nameof(CreateEventRequest.Start), target: nameof(Event.Start), Use = nameof(ToEventStartDate))]
     public static partial Event ToEntity(this CreateEventRequest dto);

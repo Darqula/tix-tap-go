@@ -40,7 +40,7 @@ builder.Services.AddOpenIddict()
         options.UseAspNetCore();
     });
 
-builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
+builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId, Extensions.EventServiceId);
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddTransient<SeatExcelTemplate>();
 

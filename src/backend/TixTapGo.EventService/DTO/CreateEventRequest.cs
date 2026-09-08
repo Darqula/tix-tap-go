@@ -7,6 +7,9 @@ namespace TixTapGo.EventService.DTO;
 public sealed record CreateEventRequest
 {
     [Required]
+    public Guid VenueId { get; set; }
+    
+    [Required]
     [MaxLength(128)]
     public string Title { get; set; } = null!;
 

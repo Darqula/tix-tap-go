@@ -34,6 +34,7 @@ public static class Extensions
     /// credentials to call into internal services.
     /// </summary>
     public const string GatewayClientId = "gateway";
+    public const string EventServiceId = "event-service";
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {

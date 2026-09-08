@@ -26,10 +26,16 @@ var authDbMigration = authService
 
 authService.WaitForCompletion(authDbMigration);
 
-var eventService = builder
-    .AddProject<Projects.TixTapGo_EventService>("event-service")
+var eventService = builder.AddProject<Projects.TixTapGo_EventService>("event-service");
+var venueService = builder.AddProject<Projects.TixTapGo_VenueService>("venue-service");
+
+var eventServiceSecret = builder.AddParameter("event-service-secret", secret: true);
+eventService
     .WithReference(eventsDb)
     .WithReference(authService)
+    .WithReference(venueService)
+    .WaitFor(authService)
+    .WithEnvironment("Authentication__ClientSecret", eventServiceSecret)
     .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
 
 var eventServiceWorker = builder
@@ -45,9 +51,10 @@ var eventsDbMigration = eventService
 eventService.WaitForCompletion(eventsDbMigration);
 eventServiceWorker.WaitForCompletion(eventsDbMigration);
 
-var venueService = builder.AddProject<Projects.TixTapGo_VenueService>("venue-service")
+venueService
     .WithReference(venuesDb)
     .WithReference(authService)
+    .WithReference(eventService)
     .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
 
 var venuesDbMigration = venueService
