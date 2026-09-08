@@ -1,4 +1,4 @@
-﻿namespace TixTapGo.Gateway;
+﻿namespace TixTapGo.Shared.Auth;
 
 public static class Constants
 {

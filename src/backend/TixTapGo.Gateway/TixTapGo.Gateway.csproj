@@ -8,5 +8,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TixTapGo.ServiceDefaults\TixTapGo.ServiceDefaults.csproj"/>
+    <ProjectReference Include="..\TixTapGo.Shared.Auth\TixTapGo.Shared.Auth.csproj"/>
   </ItemGroup>
 </Project>

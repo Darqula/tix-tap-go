@@ -65,7 +65,7 @@ builder.AddProject<Projects.TixTapGo_Gateway>("gateway")
     .WaitFor(eventService)
     .WaitFor(authService)
     .WaitFor(venueService)
-    .WithEnvironment("ClientCredentialsFlow__ClientSecret", gatewaySecret)
+    .WithEnvironment("Authentication__ClientSecret", gatewaySecret)
     .WithExternalHttpEndpoints();
 
 builder.Build().Run();

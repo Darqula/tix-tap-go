@@ -2,11 +2,11 @@
 
 using OpenIddict.Client;
 
-using TixTapGo.Gateway.Services.Abstractions;
+using TixTapGo.Shared.Auth.Services.Abstractions;
 
-namespace TixTapGo.Gateway.Services;
+namespace TixTapGo.Shared.Auth.Services;
 
-internal sealed class AccessTokenProvider : IAccessTokenProvider, IDisposable
+public sealed class AccessTokenProvider : IAccessTokenProvider, IDisposable
 {
     private readonly IMemoryCache _memoryCache;
     private readonly OpenIddictClientService _openIddictClientService;

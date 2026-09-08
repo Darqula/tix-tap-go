@@ -4,8 +4,8 @@ using OpenIddict.Client;
 
 using Scalar.AspNetCore;
 
-using TixTapGo.Gateway.Services;
-using TixTapGo.Gateway.Services.Abstractions;
+using TixTapGo.Shared.Auth;
+using TixTapGo.Shared.Auth.Services.Abstractions;
 
 using Yarp.ReverseProxy.Transforms;
 
@@ -16,14 +16,14 @@ builder.AddServiceDefaults();
 builder.Services.AddOpenIddict()
     .AddClient(options =>
     {
-        var clientCredentialsFlowConfig = builder.Configuration.GetSection("ClientCredentialsFlow");
+        var clientCredentialsFlowConfig = builder.Configuration.GetSection("Authentication");
         string? clientId = clientCredentialsFlowConfig["ClientId"];
         string? clientSecret = clientCredentialsFlowConfig["ClientSecret"];
 
         if (string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
         {
             throw new InvalidOperationException(
-                "ClientCredentialsFlow:ClientId or ClientCredentialsFlow:ClientSecret are not configured.");
+                "Authentication:ClientId or Authentication:ClientSecret are not configured.");
         }
 
         options.AllowClientCredentialsFlow();
@@ -38,9 +38,7 @@ builder.Services.AddOpenIddict()
         });
     });
 
-builder.Services
-    .AddMemoryCache()
-    .AddSingleton<IAccessTokenProvider, AccessTokenProvider>();
+builder.Services.AddAccessTokenProvider();
 
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"))
