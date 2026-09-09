@@ -27,7 +27,7 @@ internal class ExpireStaleEventsJob(EventDbContext dbContext, ILogger<ExpireStal
         logger.LogInformation("{StaleEventsCount} stale events found", staleEvents.Count);
         foreach (var staleEvent in staleEvents)
         {
-            staleEvent.Status = EventStatus.Completed;
+            staleEvent.Complete();
         }
         
         await dbContext.SaveChangesAsync(cancellationToken.ShutdownToken);

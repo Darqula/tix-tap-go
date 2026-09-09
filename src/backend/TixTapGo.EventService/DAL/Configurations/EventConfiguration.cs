@@ -15,7 +15,16 @@ internal class EventConfiguration : IEntityTypeConfiguration<Event>
         builder.ToTable(t =>
             t.HasCheckConstraint("CK_Event_End_After_Start",
                 $"\"{nameof(Event.End)}\" >= \"{nameof(Event.Start)}\""));
-        builder.HasIndex(@event => new { @event.Status, @event.End });
+        builder.HasIndex(@event => new
+        {
+            @event.Status,
+            @event.End
+        });
         builder.HasIndex(@event => @event.VenueId);
+
+        builder.ComplexCollection(
+            @event => @event.ActiveIssues,
+            complexCollectionBuilder => complexCollectionBuilder.ToJson()
+        );
     }
 }

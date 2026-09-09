@@ -15,7 +15,15 @@ internal static partial class EventMapping
     [MapperIgnoreSource(nameof(Event.CreatedAt))]
     [MapperIgnoreSource(nameof(Event.UpdatedAt))]
     [MapperIgnoreSource(nameof(Event.DomainEvents))]
+    [MapProperty(source: nameof(Event.ActiveIssues), target: nameof(GetEventResponse.IsResolutionRequired), Use = nameof(IsResolutionRequired))]
+    
     public static partial GetEventResponse ToGetEventResponse(this Event entity);
+    
+    [IncludeMappingConfiguration(nameof(ToGetEventResponse))]
+    public static partial GetEventDetailedResponse ToGetEventDetailedResponse(this Event entity);
+    
+    public static partial GetEventIssueResponse ToGetEventIssueResponse(this EventIssue issue);
+    
 
     [MapperIgnoreTarget(nameof(Event.Id))]
     [MapperIgnoreTarget(nameof(Event.DomainEvents))]
@@ -25,4 +33,7 @@ internal static partial class EventMapping
 
     [UserMapping(Default = false)]
     private static DateTimeOffset ToEventStartDate(DateTimeOffset? startDateDto) => startDateDto!.Value.ToUniversalTime();
+    
+    [UserMapping(Default = false)]
+    private static bool IsResolutionRequired(List<EventIssue> issues) => issues.Count != 0;
 }

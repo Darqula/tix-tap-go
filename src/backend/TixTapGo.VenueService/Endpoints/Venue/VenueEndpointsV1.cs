@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using MassTransit;
+
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
+using TixTapGo.VenueService.Contracts.Messages;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Venue.DTO;
 using TixTapGo.VenueService.Entities;
@@ -33,7 +36,8 @@ internal static class VenueEndpointsV1
         return TypedResults.Ok(venues);
     }
 
-    public static async Task<Results<Ok<GetVenueDetailedResponse>, NotFound>> GetVenue(Guid id, VenueDbContext dbContext,
+    public static async Task<Results<Ok<GetVenueDetailedResponse>, NotFound>> GetVenue(Guid id,
+        VenueDbContext dbContext,
         CancellationToken cancellationToken)
     {
         var result = await dbContext.Venues
@@ -47,7 +51,7 @@ internal static class VenueEndpointsV1
                     .SingleOrDefault()
             })
             .SingleOrDefaultAsync(cancellationToken);
-        
+
         return result?.Venue != null
             ? TypedResults.Ok(result.Venue.ToGetVenueDetailedResponse(result.CurrentMapVersion?.Id))
             : TypedResults.NotFound();
@@ -91,15 +95,34 @@ internal static class VenueEndpointsV1
         return TypedResults.Ok(venue.ToGetVenueResponse());
     }
 
-    public static async Task<Results<NoContent, NotFound>> DeleteVenue(Guid id, VenueDbContext dbContext)
+    public static async Task<Results<NoContent, NotFound>> DeleteVenue(Guid id, VenueDbContext dbContext,
+        IPublishEndpoint rmqPublishEndpoint)
     {
-        var venue = await dbContext.Venues.FindAsync(id);
-        if (venue == null)
+        var venueWithActiveMap = await dbContext.Venues
+            .Where(venue => venue.Id == id)
+            .Select(venue =>
+                new
+                {
+                    Venue = venue,
+                    SeatingMapId = venue.SeatingMapVersions!
+                        .AsQueryable()
+                        .Where(version => version.VenueId == id)
+                        .Where(VenueSeatingMapVersion.IsCurrentActive)
+                        .Select<VenueSeatingMapVersion, Guid?>(version => version.Id)
+                        .FirstOrDefault()
+                })
+            .FirstOrDefaultAsync();
+
+        if (venueWithActiveMap?.Venue == null)
         {
             return TypedResults.NotFound();
         }
 
+        var venue = venueWithActiveMap.Venue;
+        var seatingMap = venueWithActiveMap.SeatingMapId;
+
         dbContext.Venues.Remove(venue);
+        await rmqPublishEndpoint.Publish(new VenueDeleted(venue.Id, seatingMap));
         await dbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }

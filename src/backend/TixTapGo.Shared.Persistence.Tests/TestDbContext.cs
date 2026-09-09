@@ -10,7 +10,7 @@ namespace TixTapGo.Shared.Persistence.Tests;
 /// same container without a fresh container per test.
 /// </summary>
 internal sealed class TestDbContext(DbContextOptions<TestDbContext> options, string schema)
-    : SharedDbContext(options)
+    : SharedDbContext(options, [])
 {
     /// <summary>
     /// Exposed for <see cref="SchemaModelCacheKeyFactory"/>

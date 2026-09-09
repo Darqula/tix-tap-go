@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL"/>
     <PackageReference Include="ClosedXML"/>
+    <PackageReference Include="CommunityToolkit.Aspire.MassTransit.RabbitMQ"/>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
@@ -14,5 +14,6 @@
     <ProjectReference Include="..\TixTapGo.ServiceDefaults\TixTapGo.ServiceDefaults.csproj"/>
     <ProjectReference Include="..\TixTapGo.Shared.Persistence\TixTapGo.Shared.Persistence.csproj"/>
     <ProjectReference Include="..\TixTapGo.Shared\TixTapGo.Shared.csproj"/>
+    <ProjectReference Include="..\TixTapGo.VenueService.Contracts\TixTapGo.VenueService.Contracts.csproj"/>
   </ItemGroup>
 </Project>

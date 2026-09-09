@@ -2,6 +2,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Exceptions;
+using TixTapGo.Shared.Persistence.DAL;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Seat;
 using TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
@@ -12,7 +13,9 @@ using TixTapGo.VenueService.Endpoints.Venue;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.AddNpgsqlDbContext<VenueDbContext>("venuesdb");
+
+string? dbConnectionString = builder.Configuration.GetConnectionString("venuesdb");
+builder.AddDbContextWithMassTransit<VenueDbContext>(dbConnectionString, "rabbitmq");
 
 builder.Services
     .AddOpenApi(o => o.AddOperationTransformer<CaseInsensitiveEnumParameterTransformer>())

@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Net;
 
 using TixTapGo.EventService.DAL;
 using TixTapGo.EventService.DTO;
@@ -8,6 +7,7 @@ using TixTapGo.EventService.DTO.Mapping;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
+using TixTapGo.EventService.Contracts.Enums;
 using TixTapGo.EventService.Enums;
 using TixTapGo.EventService.Integrations.InternalServices.VenueService;
 using TixTapGo.Shared.Converters;
@@ -48,7 +48,7 @@ internal static class EventEndpointsV1
         return TypedResults.Ok(events);
     }
 
-    internal static async Task<Results<Ok<GetEventResponse>, NotFound>> GetEvent(Guid id, EventDbContext dbContext,
+    internal static async Task<Results<Ok<GetEventDetailedResponse>, NotFound>> GetEvent(Guid id, EventDbContext dbContext,
         CancellationToken cancellationToken)
     {
         var @event = await dbContext.Events
@@ -57,7 +57,7 @@ internal static class EventEndpointsV1
             .FirstOrDefaultAsync(@event => @event.Id == id, cancellationToken);
 
         return @event != null
-            ? TypedResults.Ok(@event.ToGetEventResponse())
+            ? TypedResults.Ok(@event.ToGetEventDetailedResponse())
             : TypedResults.NotFound();
     }
 
@@ -126,7 +126,13 @@ internal static class EventEndpointsV1
 
         if (updateRequest.Status is { } newStatus)
         {
-            @event.Status = newStatus;
+            switch (newStatus)
+            {
+                case EventStatus.Upcoming: @event.SetUpcoming(); break;
+                case EventStatus.Completed: @event.Complete(); break;
+                case EventStatus.Cancelled: @event.Cancel(EventCancellationReason.Manual); break;
+                default: throw new UnreachableException($"Unknown status {newStatus}");
+            }
         }
 
         if (!@event.Validate(out var errorsDictionary))

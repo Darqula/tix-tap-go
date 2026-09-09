@@ -11,13 +11,19 @@ using TixTapGo.EventService.Jobs;
 using TixTapGo.Shared.Auth;
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Exceptions;
+using TixTapGo.Shared.Persistence.DAL;
 
 using Extensions = Microsoft.Extensions.Hosting.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.AddNpgsqlDbContext<EventDbContext>("eventsdb");
+
+var connectionString = builder.Configuration.GetConnectionString("eventsdb");
+builder.AddDbContextWithMassTransit<EventDbContext>(connectionString, "rabbitmq", configurator =>
+{
+    configurator.AddConsumer<VenueServiceQueueConsumer>();
+});
 
 builder.Services
     .AddOpenApi(o => o.AddOperationTransformer<CaseInsensitiveEnumParameterTransformer>())

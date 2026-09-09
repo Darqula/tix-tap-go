@@ -2,6 +2,7 @@
   <Project Path="TixTapGo.AppHost/TixTapGo.AppHost.csproj"/>
   <Project Path="TixTapGo.AuthService.Cli/TixTapGo.AuthService.Cli.csproj"/>
   <Project Path="TixTapGo.AuthService/TixTapGo.AuthService.csproj"/>
+  <Project Path="TixTapGo.EventService.Contracts/TixTapGo.EventService.Contracts.csproj"/>
   <Project Path="TixTapGo.EventService.Worker/TixTapGo.EventService.Worker.csproj"/>
   <Project Path="TixTapGo.EventService/TixTapGo.EventService.csproj"/>
   <Project Path="TixTapGo.Gateway/TixTapGo.Gateway.csproj"/>
@@ -10,5 +11,6 @@
   <Project Path="TixTapGo.Shared.Persistence/TixTapGo.Shared.Persistence.csproj"/>
   <Project Path="TixTapGo.Shared.Auth/TixTapGo.Shared.Auth.csproj"/>
   <Project Path="TixTapGo.Shared.Persistence.Tests/TixTapGo.Shared.Persistence.Tests.csproj"/>
+  <Project Path="TixTapGo.VenueService.Contracts/TixTapGo.VenueService.Contracts.csproj"/>
   <Project Path="TixTapGo.VenueService/TixTapGo.VenueService.csproj"/>
 </Solution>

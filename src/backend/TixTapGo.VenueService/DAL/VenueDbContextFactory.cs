@@ -19,6 +19,6 @@ internal sealed class VenueDbContextFactory : IDesignTimeDbContextFactory<VenueD
             .UseNpgsql(configuration.GetConnectionString("venuesdb"))
             .Options;
 
-        return new VenueDbContext(options);
+        return new VenueDbContext(options, []);
     }
 }

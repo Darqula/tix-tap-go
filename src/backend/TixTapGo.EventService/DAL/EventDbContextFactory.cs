@@ -19,6 +19,6 @@ internal sealed class EventDbContextFactory : IDesignTimeDbContextFactory<EventD
             .UseNpgsql(configuration.GetConnectionString("eventsdb"))
             .Options;
 
-        return new EventDbContext(options);
+        return new EventDbContext(options, []);
     }
 }
