@@ -21,7 +21,7 @@ internal sealed class VenueSeatConfiguration : IEntityTypeConfiguration<VenueSea
                 seat.RowNumber,
                 seat.SeatNumber
             })
-            .IsSoftDeleteUnique();
+            .IsUnique();
         builder
             .HasIndex(seat => new
             {
@@ -29,6 +29,6 @@ internal sealed class VenueSeatConfiguration : IEntityTypeConfiguration<VenueSea
                 seat.MapPositionX,
                 seat.MapPositionY
             })
-            .IsSoftDeleteUnique();
+            .IsUnique();
     }
 }
