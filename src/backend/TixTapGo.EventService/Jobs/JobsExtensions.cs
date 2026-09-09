@@ -22,5 +22,7 @@ internal static class JobsExtensions
         var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
         recurringJobManager.AddOrUpdate<ExpireStaleEventsJob>(nameof(ExpireStaleEventsJob),
             job => job.ExecuteAsync(null!), ExpireStaleEventsJob.PeriodCron);
+        recurringJobManager.AddOrUpdate<CancelUnresolvedEventsJob>(nameof(CancelUnresolvedEventsJob),
+            job => job.ExecuteAsync(null!), CancelUnresolvedEventsJob.PeriodCron);
     }
 }
