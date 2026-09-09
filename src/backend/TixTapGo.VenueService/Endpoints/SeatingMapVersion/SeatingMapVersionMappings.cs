@@ -14,6 +14,7 @@ internal static partial class SeatingMapVersionMappings
     [MapperIgnoreSource(nameof(VenueSeatingMapVersion.IsDeleted))]
     [MapperIgnoreSource(nameof(VenueSeatingMapVersion.CreatedAt))]
     [MapperIgnoreSource(nameof(VenueSeatingMapVersion.UpdatedAt))]
+    [MapperIgnoreSource(nameof(VenueSeatingMapVersion.DomainEvents))]
     [MapperIgnoreSource(nameof(VenueSeatingMapVersion.Venue))]
     public static partial GetSeatingMapVersionResponse ToGetSeatingMapVersionResponse(
         this VenueSeatingMapVersion entity);

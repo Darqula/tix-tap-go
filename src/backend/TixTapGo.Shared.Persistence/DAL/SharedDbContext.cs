@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 using TixTapGo.Shared.Persistence.Entities;
 
@@ -6,11 +7,19 @@ namespace TixTapGo.Shared.Persistence.DAL;
 
 public abstract class SharedDbContext : DbContext
 {
+    private readonly IEnumerable<ISaveChangesInterceptor> _interceptors;
     private readonly HierarchicalSoftDeleteCommand _hierarchicalSoftDeleteCommand;
 
-    protected SharedDbContext(DbContextOptions options) : base(options)
+    protected SharedDbContext(DbContextOptions options, IEnumerable<ISaveChangesInterceptor> interceptors) :
+        base(options)
     {
+        _interceptors = interceptors;
         _hierarchicalSoftDeleteCommand = new HierarchicalSoftDeleteCommand(this);
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder.AddInterceptors(_interceptors));
     }
 
     public override int SaveChanges()

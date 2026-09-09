@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using TixTapGo.Shared.Abstractions;
 
 namespace TixTapGo.Shared.Persistence.Entities;
 
@@ -11,4 +11,21 @@ public abstract class EntityBase
     public DateTimeOffset UpdatedAt { get; internal set; }
 
     public bool IsDeleted { get; internal set; }
+
+    #region Domain events
+
+    private readonly List<IDomainEvent> _domainEvents = [];
+    public IReadOnlyList<IDomainEvent> DomainEvents => _domainEvents.AsReadOnly();
+
+    protected void AddDomainEvent(IDomainEvent domainEvent)
+    {
+        _domainEvents.Add(domainEvent);
+    }
+
+    public void ClearDomainEvents()
+    {
+        _domainEvents.Clear();
+    }
+
+    #endregion Domain events
 }

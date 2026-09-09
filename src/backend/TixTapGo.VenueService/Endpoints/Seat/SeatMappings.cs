@@ -14,6 +14,7 @@ internal static partial class SeatMappings
     [MapperIgnoreSource(nameof(VenueSeat.IsDeleted))]
     [MapperIgnoreSource(nameof(VenueSeat.CreatedAt))]
     [MapperIgnoreSource(nameof(VenueSeat.UpdatedAt))]
+    [MapperIgnoreSource(nameof(VenueSeat.DomainEvents))]
     [MapperIgnoreSource(nameof(VenueSeat.Category))]
     [MapperIgnoreSource(nameof(VenueSeat.SeatingMapVersion))]
     public static partial GetSeatResponse ToGetSeatResponse(this VenueSeat seat);

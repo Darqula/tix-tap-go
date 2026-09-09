@@ -10,6 +10,7 @@ internal static partial class AttendeeGroupMapping
     [MapperIgnoreSource(nameof(AttendeeGroup.IsDeleted))]
     [MapperIgnoreSource(nameof(AttendeeGroup.CreatedAt))]
     [MapperIgnoreSource(nameof(AttendeeGroup.UpdatedAt))]
+    [MapperIgnoreSource(nameof(AttendeeGroup.DomainEvents))]
     [MapperIgnoreSource(nameof(AttendeeGroup.EventId))]
     [MapperIgnoreSource(nameof(AttendeeGroup.Event))]
     public static partial GetAttendeeGroupResponse ToGetAttendeeGroupResponse(this AttendeeGroup entity);

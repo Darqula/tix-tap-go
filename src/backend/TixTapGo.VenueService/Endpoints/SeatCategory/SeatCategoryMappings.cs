@@ -10,6 +10,7 @@ internal static partial class SeatCategoryMappings
     [MapperIgnoreSource(nameof(Entities.SeatCategory.IsDeleted))]
     [MapperIgnoreSource(nameof(Entities.SeatCategory.CreatedAt))]
     [MapperIgnoreSource(nameof(Entities.SeatCategory.UpdatedAt))]
+    [MapperIgnoreSource(nameof(Entities.SeatCategory.DomainEvents))]
     [MapperIgnoreSource(nameof(Entities.SeatCategory.Venue))]
     public static partial GetSeatCategoryResponse ToGetSeatCategoryResponse(this Entities.SeatCategory entity);
 

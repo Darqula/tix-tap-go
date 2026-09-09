@@ -11,6 +11,9 @@ var eventsDb = postgres.AddDatabase("eventsdb");
 var authDb = postgres.AddDatabase("authdb");
 var venuesDb = postgres.AddDatabase("venuesdb");
 
+var rabbitMq = builder.AddRabbitMQ("rabbitmq")
+    .WithManagementPlugin();
+
 var clientCredentialsEncryptionKey = builder
     .AddParameter("client-credentials-encryption-key", secret: true)
     .WithDescription($"Randomly generated key to set: {Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))}");
@@ -34,6 +37,7 @@ eventService
     .WithReference(eventsDb)
     .WithReference(authService)
     .WithReference(venueService)
+    .WithReference(rabbitMq)
     .WaitFor(authService)
     .WithEnvironment("Authentication__ClientSecret", eventServiceSecret)
     .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
@@ -41,7 +45,8 @@ eventService
 var eventServiceWorker = builder
     .AddProject<Projects.TixTapGo_EventService_Worker>("event-service-worker")
     .WithParentRelationship(eventService)
-    .WithReference(eventsDb);
+    .WithReference(eventsDb)
+    .WithReference(rabbitMq);
 
 var eventsDbMigration = eventService
     .AddEFMigrations("eventsdb-migration")
@@ -55,6 +60,7 @@ venueService
     .WithReference(venuesDb)
     .WithReference(authService)
     .WithReference(eventService)
+    .WithReference(rabbitMq)
     .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
 
 var venuesDbMigration = venueService
