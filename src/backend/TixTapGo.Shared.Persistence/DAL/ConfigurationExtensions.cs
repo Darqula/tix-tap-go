@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using TixTapGo.Shared.Persistence.Exceptions;
+
 namespace TixTapGo.Shared.Persistence.DAL;
 
 public static class ConfigurationExtensions
@@ -20,6 +22,7 @@ public static class ConfigurationExtensions
             options.UseNpgsql(dbConnectionString);
         });
         builder.EnrichNpgsqlDbContext<TDbContext>();
+        builder.Services.AddExceptionHandler<DbConcurrencyExceptionHandler>();
 
         builder.AddMassTransitRabbitMq(rmqResourceName, massTransitConfiguration: configurator =>
         {

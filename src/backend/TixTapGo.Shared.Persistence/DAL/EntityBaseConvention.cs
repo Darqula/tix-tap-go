@@ -31,6 +31,7 @@ public class EntityBaseConvention : IModelFinalizingConvention
                 ApplyQueryFilter(entityType, (EntityBase b) => !b.IsDeleted, "SoftDelete");
                 entityType.FindProperty(nameof(EntityBase.CreatedAt))?.Builder.HasDefaultValueSql("now()");
                 entityType.FindProperty(nameof(EntityBase.UpdatedAt))?.Builder.HasDefaultValueSql("now()");
+                entityType.FindProperty(nameof(EntityBase.UpdatedAt))?.Builder.IsConcurrencyToken(true);
                 entityType.FindProperty(nameof(EntityBase.IsDeleted))?.Builder.HasDefaultValue(false);
 
                 foreach (var entityIndex in entityType.GetIndexes())
