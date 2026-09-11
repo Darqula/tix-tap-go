@@ -3,9 +3,11 @@
     <UserSecretsId>dotnet-TixTapGo.EventService.Worker-93c714d2-9231-411d-bbcb-9c91b5667348</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching"/>
     <PackageReference Include="Hangfire.AspNetCore"/>
     <PackageReference Include="Hangfire.Core"/>
     <PackageReference Include="Hangfire.PostgreSql"/>
+    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid"/>
     <PackageReference Include="Microsoft.Extensions.Hosting"/>
     <PackageReference Include="Newtonsoft.Json"/>
   </ItemGroup>

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
+using TixTapGo.Shared.Persistence.DAL.Idempotency;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.SeatCategory.DTO;
 
@@ -13,7 +14,7 @@ internal static class SeatCategoryEndpointsV1
         var categoryGroup = routeBuilder.MapGroup("/{venueId:guid}/seat-categories");
         categoryGroup.MapGet("/", GetSeatCategories).WithName("GetSeatCategories");
         categoryGroup.MapGet("/{id:guid}", GetSeatCategory).WithName("GetSeatCategoryById");
-        categoryGroup.MapPost("/", CreateSeatCategory).WithName("CreateSeatCategory");
+        categoryGroup.MapPost("/", CreateSeatCategory).WithName("CreateSeatCategory").WithIdempotencyCheck();
         categoryGroup.MapPatch("/{id:guid}", PatchSeatCategory).WithName("UpdateSeatCategory");
         categoryGroup.MapDelete("/{id:guid}", DeleteSeatCategory).WithName("DeleteSeatCategory");
 

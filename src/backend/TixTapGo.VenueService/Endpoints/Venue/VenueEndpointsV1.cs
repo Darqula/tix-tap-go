@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
+using TixTapGo.Shared.Persistence.DAL.Idempotency;
 using TixTapGo.VenueService.Contracts.Messages;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Venue.DTO;
@@ -17,7 +18,7 @@ internal static class VenueEndpointsV1
         var venueGroup = routeBuilder.MapGroup("venues");
         venueGroup.MapGet("/", GetVenues).WithName("GetVenues");
         venueGroup.MapGet("/{id:guid}", GetVenue).WithName("GetVenueById");
-        venueGroup.MapPost("/", CreateVenue).WithName("CreateVenue");
+        venueGroup.MapPost("/", CreateVenue).WithName("CreateVenue").WithIdempotencyCheck();
         venueGroup.MapPatch("/{id:guid}", PatchVenue).WithName("UpdateVenue");
         venueGroup.MapDelete("/{id:guid}", DeleteVenue).WithName("DeleteVenue");
 

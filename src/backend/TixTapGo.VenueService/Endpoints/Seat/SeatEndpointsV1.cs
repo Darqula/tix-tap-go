@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
 
+using TixTapGo.Shared.Persistence.DAL.Idempotency;
 using TixTapGo.Shared.Validation;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Seat.DTO;
@@ -17,7 +18,9 @@ internal static class SeatEndpointsV1
         var seatEndpointGroup = endpoints.MapGroup("{mapVersionId:guid}/seats");
         seatEndpointGroup.MapGet("/", GetSeats).WithName("GetSeats");
         seatEndpointGroup.MapGet("/template", DownloadSeatsTemplate).WithName("DownloadSeatsTemplate");
-        seatEndpointGroup.MapPost("/template", UploadSeatsTemplate).WithName("UploadSeatsTemplate");
+        seatEndpointGroup.MapPost("/template", UploadSeatsTemplate)
+            .WithName("UploadSeatsTemplate")
+            .WithIdempotencyCheck();
 
         return seatEndpointGroup;
     }

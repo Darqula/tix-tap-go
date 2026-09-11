@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
+using TixTapGo.Shared.Persistence.DAL.Idempotency;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.SeatingMapVersion.DTO;
 using TixTapGo.VenueService.Entities;
@@ -15,17 +16,21 @@ internal static class SeatingMapVersionEndpointsV1
         seatingMapVersionGroup.MapGet("/", GetSeatingMapVersions).WithName("GetSeatingMapVersions");
         seatingMapVersionGroup.MapGet("/{id:guid}", GetSeatingMapVersion).WithName("GetSeatingMapVersionById");
         seatingMapVersionGroup.MapGet("/current", GetCurrentSeatingMapVersion).WithName("GetCurrentSeatingMapVersion");
-        seatingMapVersionGroup.MapPost("/unpublish", UnpublishSeatingMapVersion).WithName("GetSeatingMapVersionDrafts");
+        seatingMapVersionGroup.MapPost("/unpublish", UnpublishSeatingMapVersion)
+            .WithName("GetSeatingMapVersionDrafts")
+            .WithIdempotencyCheck();
 
         var seatingMapVersionDraftGroup = seatingMapVersionGroup.MapGroup("/drafts");
         seatingMapVersionDraftGroup.MapPost("/", CreateSeatingMapVersionDraft)
-            .WithName("CreateSeatingMapVersionDraft");
+            .WithName("CreateSeatingMapVersionDraft")
+            .WithIdempotencyCheck();
         seatingMapVersionDraftGroup.MapPatch("/{id:guid}", PatchSeatingMapVersionDraft)
             .WithName("UpdateSeatingMapVersionDraft");
         seatingMapVersionDraftGroup.MapDelete("/{id:guid}", DeleteSeatingMapVersionDraft)
             .WithName("DeleteSeatingMapVersionDraft");
         seatingMapVersionDraftGroup.MapPost("/{id:guid}/publish", PublishSeatingMapVersionDraft)
-            .WithName("PublishSeatingMapVersionDraft");
+            .WithName("PublishSeatingMapVersionDraft")
+            .WithIdempotencyCheck();
 
         return seatingMapVersionGroup;
     }

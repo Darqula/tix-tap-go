@@ -10,6 +10,9 @@ builder.AddServiceDefaults();
 
 string? dbConnectionString = builder.Configuration.GetConnectionString("eventsdb");
 builder.AddDbContextWithMassTransit<EventDbContext>(dbConnectionString, "rabbitmq");
+builder.AddRedisDistributedCache("redis");
+builder.AddRedisClient("redis");
+builder.Services.AddHybridCache();
 builder.Services.AddHangfireConfigured(dbConnectionString);
 builder.Services.AddHangfireServer();
 

@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Exceptions;
 using TixTapGo.Shared.Persistence.DAL;
+using TixTapGo.Shared.Persistence.DAL.Idempotency;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Seat;
 using TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
@@ -16,6 +18,9 @@ builder.AddServiceDefaults();
 
 string? dbConnectionString = builder.Configuration.GetConnectionString("venuesdb");
 builder.AddDbContextWithMassTransit<VenueDbContext>(dbConnectionString, "rabbitmq");
+builder.AddRedisDistributedCache("redis");
+builder.AddRedisClient("redis");
+builder.Services.AddHybridCache();
 
 builder.Services
     .AddOpenApi(o => o.AddOperationTransformer<CaseInsensitiveEnumParameterTransformer>())
@@ -46,10 +51,12 @@ builder.Services.AddOpenIddict()
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId, Extensions.EventServiceId);
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddTransient<SeatExcelTemplate>();
+builder.Services.AddIdempotency();
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
+app.UseMiddleware<IdempotencyCachingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

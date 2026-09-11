@@ -11,6 +11,7 @@ using TixTapGo.EventService.Contracts.Enums;
 using TixTapGo.EventService.Enums;
 using TixTapGo.EventService.Integrations.InternalServices.VenueService;
 using TixTapGo.Shared.Converters;
+using TixTapGo.Shared.Persistence.DAL.Idempotency;
 using TixTapGo.Shared.Persistence.Queries;
 
 namespace TixTapGo.EventService;
@@ -19,18 +20,13 @@ internal static class EventEndpointsV1
 {
     internal static void MapEventEndpoints(this RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet("/", GetEvents)
-            .WithName("GetEvents");
-        groupBuilder.MapGet("/{id:guid}", GetEvent)
-            .WithName("GetEventById");
+        groupBuilder.MapGet("/", GetEvents).WithName("GetEvents");
+        groupBuilder.MapGet("/{id:guid}", GetEvent).WithName("GetEventById");
         groupBuilder.MapPost("/", CreateEvent)
             .WithName("CreateEvent")
-            .ProducesValidationProblem();
-        groupBuilder.MapPatch("/{id:guid}", PatchEvent)
-            .WithName("UpdateEvent")
-            .ProducesValidationProblem();
-        groupBuilder.MapDelete("/{id:guid}", DeleteEvent)
-            .WithName("DeleteEvent");
+            .WithIdempotencyCheck();
+        groupBuilder.MapPatch("/{id:guid}", PatchEvent).WithName("UpdateEvent");
+        groupBuilder.MapDelete("/{id:guid}", DeleteEvent).WithName("DeleteEvent");
     }
 
     internal static async Task<Ok<List<GetEventResponse>>> GetEvents(CaseInsensitiveEnum<EventStatus>[] status,

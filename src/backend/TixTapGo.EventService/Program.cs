@@ -12,6 +12,7 @@ using TixTapGo.Shared.Auth;
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Exceptions;
 using TixTapGo.Shared.Persistence.DAL;
+using TixTapGo.Shared.Persistence.DAL.Idempotency;
 
 using Extensions = Microsoft.Extensions.Hosting.Extensions;
 
@@ -24,6 +25,9 @@ builder.AddDbContextWithMassTransit<EventDbContext>(connectionString, "rabbitmq"
 {
     configurator.AddConsumer<VenueServiceQueueConsumer>();
 });
+builder.AddRedisDistributedCache("redis");
+builder.AddRedisClient("redis");
+builder.Services.AddHybridCache();
 
 builder.Services
     .AddOpenApi(o => o.AddOperationTransformer<CaseInsensitiveEnumParameterTransformer>())
@@ -83,10 +87,12 @@ builder.Services.AddHangfireConfigured(builder.Configuration.GetConnectionString
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
 
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
+builder.Services.AddIdempotency();
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
+app.UseMiddleware<IdempotencyCachingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
