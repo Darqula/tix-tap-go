@@ -32,8 +32,20 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>
         foreach (var eventEntity in venueEvents)
         {
             eventEntity.OnVenueDeleted();
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                foreach (var entry in e.Entries)
+                {
+                    await entry.ReloadAsync();
+                }
+                eventEntity.OnVenueDeleted();
+                await _dbContext.SaveChangesAsync();
+            }
+            
         }
-        
-        await _dbContext.SaveChangesAsync();
     }
 }

@@ -41,8 +41,18 @@ internal class CancelUnresolvedEventsJob
         foreach (Event problemEvent in problemEvents)
         {
             problemEvent.Cancel(EventCancellationReason.UnresolvedIssues);
+            
+            try
+            {
+                await _eventDbContext.SaveChangesAsync(CancellationToken.None);
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                foreach (var entry in e.Entries)
+                {
+                    entry.State = EntityState.Detached;
+                }
+            }
         }
-
-        await _eventDbContext.SaveChangesAsync(CancellationToken.None);
     }
 }

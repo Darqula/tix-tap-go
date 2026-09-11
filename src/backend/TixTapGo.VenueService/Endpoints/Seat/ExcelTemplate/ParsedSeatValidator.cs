@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 using TixTapGo.Shared.Validation;
 using TixTapGo.VenueService.Entities;
@@ -43,7 +44,7 @@ internal sealed class ParsedSeatValidator
             {
                 if (!ValidateSeatDto(dto, out ParseSeatsResult.ParsingError? error))
                 {
-                    if (error != null) errorsList.Add(error);
+                    errorsList.Add(error);
                     isSuccessful = false;
                 }
             }
@@ -62,7 +63,7 @@ internal sealed class ParsedSeatValidator
         return isSuccessful;
     }
 
-    private bool ValidateSeatDto(ParsedSeatDto dto, out ParseSeatsResult.ParsingError? error)
+    private bool ValidateSeatDto(ParsedSeatDto dto, [NotNullWhen(false)] out ParseSeatsResult.ParsingError? error)
     {
         var validationContext = new ValidationContext(dto);
         var validationResults = new List<ValidationResult>();

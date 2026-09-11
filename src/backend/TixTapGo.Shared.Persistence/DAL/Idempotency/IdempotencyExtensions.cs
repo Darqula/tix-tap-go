@@ -31,7 +31,12 @@ public static class IdempotencyExtensions
                         Type = JsonSchemaType.String,
                         Format = "uuid"
                     },
-                    Description = "Client-generated UUID; replays with the same key return the cached response."
+                    Description = "Client-generated UUID for one logical attempt at this operation. Reuse the " +
+                                  "same key only to retry after receiving no response (e.g. a timeout or dropped " +
+                                  "connection) - the server returns the cached result of the original attempt " +
+                                  "rather than executing again. After any definitive response, success or error, " +
+                                  "use a new key for a new attempt; reusing it will keep returning the original " +
+                                  "outcome unchanged, not retry the operation."
                 });
 
                 var responses = o.Responses?.Values;

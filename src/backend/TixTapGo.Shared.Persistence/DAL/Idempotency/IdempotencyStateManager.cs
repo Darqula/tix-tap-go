@@ -18,13 +18,14 @@ internal sealed class IdempotencyStateManager(
         Func<ValueTask<object?>> next)
     {
         var redisCacheDb = redisConnectionMultiplexer.GetDatabase();
-    
+
         string cacheKey = GetIdempotencyCacheKey(context, idempotencyKeyValue);
-    
+
         // Initialize new cache records with the Processing status to avoid cross-instance stampede
-        IdempotentCacheValue currentCachedResult = await redisCacheDb.StringSetAndGetAsync(cacheKey,
-            IdempotentCacheValue.Processing(), TimeSpan.FromMinutes(1), when: When.NotExists);
-    
+        RedisValue rawCachedResult = await redisCacheDb.StringSetAndGetAsync(cacheKey,
+            IdempotentCacheValue.Processing(), TimeSpan.FromMinutes(5), when: When.NotExists);
+        IdempotentCacheValue currentCachedResult = ParseCachedValue(rawCachedResult, cacheKey);
+
         switch (currentCachedResult.Status)
         {
             case IdempotentCacheValueStatus.Processing:
@@ -32,20 +33,39 @@ internal sealed class IdempotencyStateManager(
                 // We shouldn't start a new one, and we can't return any result yet
                 throw new IdempotencyException("The Idempotency-Key header value is already being processed",
                     StatusCodes.Status409Conflict);
-    
+
             case IdempotentCacheValueStatus.Completed:
                 // Request was already successfully processed and cached - return cached result  
                 context.Response.Headers[IdempotencyConstants.IdempotencyReplayedHeader] = bool.TrueString;
                 return currentCachedResult.Value!.ToResult();
-    
+
             case IdempotentCacheValueStatus.Null:
                 // Request with this idempotency key wasn't processed yet.
                 // Store the cache key in the context to cache the final response in the IdempotencyCachingMiddleware
                 context.Items[IdempotencyConstants.IdempotencyCacheKey] = cacheKey;
                 return await next();
-    
+
             default:
                 throw new IdempotencyException($"Unknown idempotency cache state: {currentCachedResult.Status}");
+        }
+    }
+
+    private IdempotentCacheValue ParseCachedValue(RedisValue redisValue, string cacheKey)
+    {
+        try
+        {
+            if (redisValue.IsNullOrEmpty)
+            {
+                return IdempotentCacheValue.Null();
+            }
+
+            return JsonSerializer.Deserialize<IdempotentCacheValue>((string)redisValue!) ?? IdempotentCacheValue.Null();
+        }
+        catch (JsonException ex)
+        {
+            logger.LogWarning(ex,
+                "Failed to deserialize cached idempotency value for key {CacheKey}; treating it as unset", cacheKey);
+            return IdempotentCacheValue.Null();
         }
     }
 
@@ -71,9 +91,9 @@ internal sealed class IdempotencyStateManager(
         }
 
         string refinedPath = requestPath.Trim('/').Replace('/', '_');
-        string httpMethod = httpContext.Request.Method.ToLowerInvariant();
+        string httpMethod = httpContext.Request.Method;
 
-        return $"idempotency:{refinedPath}:{httpMethod}:{idempotencyKeyValue}";
+        return $"idempotency:{refinedPath}:{httpMethod}:{idempotencyKeyValue}".ToLowerInvariant();
     }
 
     private sealed record IdempotentCacheValue(IdempotentCacheValueStatus Status, IdempotentResponse? Value)
@@ -85,16 +105,6 @@ internal sealed class IdempotencyStateManager(
             new(IdempotentCacheValueStatus.Completed, value);
 
         public static implicit operator RedisValue(IdempotentCacheValue value) => new(JsonSerializer.Serialize(value));
-
-        public static implicit operator IdempotentCacheValue(RedisValue redisValue)
-        {
-            if (redisValue.IsNullOrEmpty)
-            {
-                return Null();
-            }
-
-            return JsonSerializer.Deserialize<IdempotentCacheValue>((string)redisValue!) ?? Null();
-        }
     }
 
     [JsonConverter(typeof(JsonStringEnumConverter))]

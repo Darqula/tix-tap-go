@@ -107,11 +107,11 @@ internal sealed class SeatExcelTemplate
 
                 if (!TryParseRow(row, out ParsedSeatDto? dto, out ParseSeatsResult.ParsingError? error))
                 {
-                    if (error != null) errors.Add(error);
+                    errors.Add(error);
                     continue;
                 }
 
-                if (dto != null) seats.Add(dto);
+                seats.Add(dto);
             }
             catch (Exception e)
             {
@@ -124,7 +124,9 @@ internal sealed class SeatExcelTemplate
             : ParseSeatsResult.Fail(version, errors, seats);
     }
 
-    private bool TryParseRow(IXLRow row, out ParsedSeatDto? dto, out ParseSeatsResult.ParsingError? error)
+    private bool TryParseRow(IXLRow row,
+        [NotNullWhen(true)] out ParsedSeatDto? dto,
+        [NotNullWhen(false)] out ParseSeatsResult.ParsingError? error)
     {
         int sheetRowNumber = row.RowNumber();
         var (mapXFailed, mapPositionX) = ParseCoordinate(row, SeatColumnsV1.MapPositionX);

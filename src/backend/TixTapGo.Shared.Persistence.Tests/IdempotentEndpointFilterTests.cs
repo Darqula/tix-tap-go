@@ -36,7 +36,7 @@ public sealed class IdempotentEndpointFilterTests(RedisCollectionFixture fixture
 
     public async Task InitializeAsync()
     {
-        _redis = (ConnectionMultiplexer)await ConnectionMultiplexer.ConnectAsync(fixture.ConnectionString);
+        _redis = await ConnectionMultiplexer.ConnectAsync(fixture.ConnectionString);
 
         // Pin the environment: IDE test runners inject ASPNETCORE_ENVIRONMENT=Development, which
         // auto-adds the Developer Exception Page middleware and would swallow handler exceptions
