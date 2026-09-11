@@ -21,9 +21,25 @@ var clientCredentialsEncryptionKey = builder
     .AddParameter("client-credentials-encryption-key", secret: true)
     .WithDescription($"Randomly generated key to set: {Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))}");
 
+static GenerateParameterDefault ClientSecretDefault() => new()
+{
+    MinLength = 36,
+    Lower = true,
+    Numeric = true,
+    Upper = false,
+    Special = false
+};
+
+var eventServiceSecret = builder.AddParameter(
+    "event-service-secret", ClientSecretDefault(), secret: true, persist: true);
+var gatewaySecret = builder.AddParameter(
+    "gateway-secret", ClientSecretDefault(), secret: true, persist: true);
+
 var authService = builder.AddProject<Projects.TixTapGo_AuthService>("auth-service")
     .WithReference(authDb)
-    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
+    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey)
+    .WithEnvironment("Authentication__ClientServices__event-service", eventServiceSecret)
+    .WithEnvironment("Authentication__ClientServices__gateway", gatewaySecret);
 
 var authDbMigration = authService
     .AddEFMigrations("authdb-migration")
@@ -35,7 +51,6 @@ authService.WaitForCompletion(authDbMigration);
 var eventService = builder.AddProject<Projects.TixTapGo_EventService>("event-service");
 var venueService = builder.AddProject<Projects.TixTapGo_VenueService>("venue-service");
 
-var eventServiceSecret = builder.AddParameter("event-service-secret", secret: true);
 eventService
     .WithReference(eventsDb)
     .WithReference(authService)
@@ -76,7 +91,6 @@ var venuesDbMigration = venueService
 
 venueService.WaitForCompletion(venuesDbMigration);
 
-var gatewaySecret = builder.AddParameter("gateway-secret", secret: true);
 builder.AddProject<Projects.TixTapGo_Gateway>("gateway")
     .WithReference(eventService)
     .WithReference(authService)

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+using TixTapGo.AuthService;
 using TixTapGo.AuthService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +45,8 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 app.MapDefaultEndpoints();
+
+await ClientSeeder.SeedClientsAsync(app);
 
 if (app.Environment.IsDevelopment())
 {
