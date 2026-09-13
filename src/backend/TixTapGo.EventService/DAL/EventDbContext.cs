@@ -13,14 +13,12 @@ internal sealed class EventDbContext(
     IEnumerable<ISaveChangesInterceptor> interceptors) : SharedDbContext(options, interceptors)
 {
     public DbSet<Event> Events => Set<Event>();
-    public DbSet<AttendeeGroup> AttendeeGroups => Set<AttendeeGroup>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new EventConfiguration());
-        modelBuilder.ApplyConfiguration(new AttendeeGroupConfiguration());
         modelBuilder.AddOutboxMessageTables();
     }
 }

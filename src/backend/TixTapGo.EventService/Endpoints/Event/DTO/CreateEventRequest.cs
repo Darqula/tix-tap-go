@@ -2,7 +2,7 @@
 
 using TixTapGo.Shared.Validation;
 
-namespace TixTapGo.EventService.DTO;
+namespace TixTapGo.EventService.Endpoints.Event.DTO;
 
 public sealed record CreateEventRequest
 {
@@ -24,10 +24,4 @@ public sealed record CreateEventRequest
     [Required]
     [FutureDate]
     public DateTimeOffset? End { get; set; }
-
-    [Required]
-    [MaxLength(256)]
-    public string Location { get; set; } = null!;
-
-    public IEnumerable<CreateAttendeeGroupRequest>? AttendeeGroups { get; set; }
 }

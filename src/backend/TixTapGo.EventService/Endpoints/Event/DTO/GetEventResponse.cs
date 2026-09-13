@@ -1,7 +1,7 @@
 ﻿using TixTapGo.EventService.Contracts.Enums;
 using TixTapGo.EventService.Enums;
 
-namespace TixTapGo.EventService.DTO;
+namespace TixTapGo.EventService.Endpoints.Event.DTO;
 
 public record GetEventResponse
 {
@@ -15,5 +15,4 @@ public record GetEventResponse
     public required EventStatus Status { get; init; }
     public EventCancellationReason? CancellationReason { get; init; }
     public required string Location { get; init; }
-    public required IEnumerable<GetAttendeeGroupResponse> AttendeeGroups { get; init; }
 }

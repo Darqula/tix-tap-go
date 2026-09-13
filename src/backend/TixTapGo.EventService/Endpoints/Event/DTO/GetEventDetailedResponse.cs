@@ -1,6 +1,6 @@
 ﻿using TixTapGo.EventService.Enums;
 
-namespace TixTapGo.EventService.DTO;
+namespace TixTapGo.EventService.Endpoints.Event.DTO;
 
 public sealed record GetEventDetailedResponse : GetEventResponse
 {

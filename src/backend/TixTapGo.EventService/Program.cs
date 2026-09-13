@@ -4,8 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 
 using OpenIddict.Client;
 
-using TixTapGo.EventService;
 using TixTapGo.EventService.DAL;
+using TixTapGo.EventService.Endpoints.Event;
 using TixTapGo.EventService.Integrations.InternalServices.VenueService;
 using TixTapGo.EventService.Jobs;
 using TixTapGo.Shared.Auth;
@@ -85,7 +85,6 @@ builder.Services.AddOpenIddict()
 builder.Services.AddHangfireConfigured(builder.Configuration.GetConnectionString("eventsdb"));
 
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
-
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddIdempotency();
 
@@ -107,8 +106,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGroup("events")
-    .MapEventEndpoints();
+app.MapEventEndpoints()
 
 app.RegisterJobs();
 

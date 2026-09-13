@@ -1,32 +1,33 @@
 ﻿using System.Diagnostics;
 
-using TixTapGo.EventService.DAL;
-using TixTapGo.EventService.DTO;
-using TixTapGo.EventService.DTO.Mapping;
-
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 using TixTapGo.EventService.Contracts.Enums;
+using TixTapGo.EventService.DAL;
+using TixTapGo.EventService.Endpoints.Event.DTO;
 using TixTapGo.EventService.Enums;
 using TixTapGo.EventService.Integrations.InternalServices.VenueService;
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Persistence.DAL.Idempotency;
 using TixTapGo.Shared.Persistence.Queries;
 
-namespace TixTapGo.EventService;
+namespace TixTapGo.EventService.Endpoints.Event;
 
 internal static class EventEndpointsV1
 {
-    internal static void MapEventEndpoints(this RouteGroupBuilder groupBuilder)
+    internal static RouteGroupBuilder MapEventEndpoints(this IEndpointRouteBuilder routeBuilder)
     {
-        groupBuilder.MapGet("/", GetEvents).WithName("GetEvents");
-        groupBuilder.MapGet("/{id:guid}", GetEvent).WithName("GetEventById");
-        groupBuilder.MapPost("/", CreateEvent)
+        var eventsGroup = routeBuilder.MapGroup("events");
+        eventsGroup.MapGet("/", GetEvents).WithName("GetEvents");
+        eventsGroup.MapGet("/{id:guid}", GetEvent).WithName("GetEventById");
+        eventsGroup.MapPost("/", CreateEvent)
             .WithName("CreateEvent")
             .WithIdempotencyCheck();
-        groupBuilder.MapPatch("/{id:guid}", PatchEvent).WithName("UpdateEvent");
-        groupBuilder.MapDelete("/{id:guid}", DeleteEvent).WithName("DeleteEvent");
+        eventsGroup.MapPatch("/{id:guid}", PatchEvent).WithName("UpdateEvent");
+        eventsGroup.MapDelete("/{id:guid}", DeleteEvent).WithName("DeleteEvent");
+
+        return eventsGroup;
     }
 
     internal static async Task<Ok<List<GetEventResponse>>> GetEvents(CaseInsensitiveEnum<EventStatus>[] status,
@@ -44,11 +45,10 @@ internal static class EventEndpointsV1
         return TypedResults.Ok(events);
     }
 
-    internal static async Task<Results<Ok<GetEventDetailedResponse>, NotFound>> GetEvent(Guid id, EventDbContext dbContext,
-        CancellationToken cancellationToken)
+    internal static async Task<Results<Ok<GetEventDetailedResponse>, NotFound>> GetEvent(Guid id,
+        EventDbContext dbContext, CancellationToken cancellationToken)
     {
         var @event = await dbContext.Events
-            .Include(@event => @event.AttendeeGroups)
             .AsNoTracking()
             .FirstOrDefaultAsync(@event => @event.Id == id, cancellationToken);
 
@@ -138,19 +138,12 @@ internal static class EventEndpointsV1
 
         await dbContext.SaveChangesAsync(CancellationToken.None);
 
-        await dbContext
-            .Entry(@event)
-            .Collection(e => e.AttendeeGroups)
-            .LoadAsync(cancellationToken);
-
         return TypedResults.Ok(@event.ToGetEventResponse());
     }
 
     internal static async Task<Results<NoContent, NotFound>> DeleteEvent(Guid id, EventDbContext dbContext)
     {
-        var @event = await dbContext.Events
-            .Include(e => e.AttendeeGroups)
-            .FirstOrDefaultAsync(@event => @event.Id == id);
+        var @event = await dbContext.Events.FindAsync(id);
 
         if (@event == null)
         {
@@ -161,7 +154,7 @@ internal static class EventEndpointsV1
         await dbContext.SaveChangesAsync();
         return TypedResults.NoContent();
     }
-    
+
     private static async Task<Results<ValidationProblem, ProblemHttpResult>?> ValidateVenueRemote(Guid venueId,
         VenueServiceHttpClient venueHttpClient, CancellationToken cancellationToken = default)
     {
@@ -185,7 +178,8 @@ internal static class EventEndpointsV1
                 extensions: new Dictionary<string, object?>
                 {
                     [hre.StatusCode?.ToString() ?? "0"] = new[] { hre.Message }
-                });
+                }
+            );
         }
     }
 }

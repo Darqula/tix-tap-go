@@ -24,7 +24,6 @@ internal sealed class Event : EntityBase
 
     public List<EventIssue> ActiveIssues { get; private set; } = new List<EventIssue>();
 
-    public List<AttendeeGroup> AttendeeGroups { get; private set; } = new List<AttendeeGroup>();
 
     #region Status
 
