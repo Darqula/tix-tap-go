@@ -3,6 +3,9 @@
     <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching"/>
     <PackageReference Include="ClosedXML"/>
     <PackageReference Include="CommunityToolkit.Aspire.MassTransit.RabbitMQ"/>
+    <PackageReference Include="Hangfire.AspNetCore"/>
+    <PackageReference Include="Hangfire.Core"/>
+    <PackageReference Include="Hangfire.PostgreSql"/>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>
@@ -17,5 +20,8 @@
     <ProjectReference Include="..\TixTapGo.Shared.Persistence\TixTapGo.Shared.Persistence.csproj"/>
     <ProjectReference Include="..\TixTapGo.Shared\TixTapGo.Shared.csproj"/>
     <ProjectReference Include="..\TixTapGo.VenueService.Contracts\TixTapGo.VenueService.Contracts.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="TixTapGo.VenueService.Worker"/>
   </ItemGroup>
 </Project>

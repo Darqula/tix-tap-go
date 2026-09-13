@@ -1,3 +1,5 @@
+using Hangfire;
+
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,6 +13,7 @@ using TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
 using TixTapGo.VenueService.Endpoints.SeatCategory;
 using TixTapGo.VenueService.Endpoints.SeatingMapVersion;
 using TixTapGo.VenueService.Endpoints.Venue;
+using TixTapGo.VenueService.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +51,8 @@ builder.Services.AddOpenIddict()
         options.UseAspNetCore();
     });
 
+builder.Services.AddHangfireConfigured(builder.Configuration.GetConnectionString("venuesdb"));
+
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId, Extensions.EventServiceId);
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddTransient<SeatExcelTemplate>();
@@ -62,6 +67,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi().AllowAnonymous();
     app.UseDeveloperExceptionPage();
+    app.MapHangfireDashboard("/venues/hangfire").RequireAuthorization(Extensions.InternalOnlyPolicy);
 }
 
 app.UseExceptionHandler();

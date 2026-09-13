@@ -12,5 +12,6 @@
   <Project Path="TixTapGo.Shared.Auth/TixTapGo.Shared.Auth.csproj"/>
   <Project Path="TixTapGo.Shared.Persistence.Tests/TixTapGo.Shared.Persistence.Tests.csproj"/>
   <Project Path="TixTapGo.VenueService.Contracts/TixTapGo.VenueService.Contracts.csproj"/>
+  <Project Path="TixTapGo.VenueService.Worker/TixTapGo.VenueService.Worker.csproj"/>
   <Project Path="TixTapGo.VenueService/TixTapGo.VenueService.csproj"/>
 </Solution>

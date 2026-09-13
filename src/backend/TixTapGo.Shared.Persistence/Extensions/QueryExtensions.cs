@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace TixTapGo.Shared.Persistence.Queries;
+namespace TixTapGo.Shared.Persistence.Extensions;
 
 public static class QueryExtensions
 {

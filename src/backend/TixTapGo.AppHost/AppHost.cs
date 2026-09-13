@@ -84,12 +84,20 @@ venueService
     .WithReference(redis)
     .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
 
+var venueServiceWorker = builder
+    .AddProject<Projects.TixTapGo_VenueService_Worker>("venue-service-worker")
+    .WithParentRelationship(venueService)
+    .WithReference(venuesDb)
+    .WithReference(rabbitMq)
+    .WithReference(redis);
+
 var venuesDbMigration = venueService
     .AddEFMigrations("venuesdb-migration")
     .RunDatabaseUpdateOnStart()
     .WaitFor(venuesDb);
 
 venueService.WaitForCompletion(venuesDbMigration);
+venueServiceWorker.WaitForCompletion(venuesDbMigration);
 
 builder.AddProject<Projects.TixTapGo_Gateway>("gateway")
     .WithReference(eventService)

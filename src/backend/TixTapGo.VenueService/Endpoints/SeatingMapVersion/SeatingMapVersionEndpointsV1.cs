@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Hangfire;
+
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 using TixTapGo.Shared.Persistence.DAL.Idempotency;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.SeatingMapVersion.DTO;
 using TixTapGo.VenueService.Entities;
+using TixTapGo.VenueService.Jobs;
 
 namespace TixTapGo.VenueService.Endpoints.SeatingMapVersion;
 
@@ -126,7 +129,7 @@ internal static class SeatingMapVersionEndpointsV1
     }
 
     public static async Task<Results<Ok<GetSeatingMapVersionResponse>, ProblemHttpResult, NotFound>>
-        PublishSeatingMapVersionDraft(Guid venueId, Guid id, VenueDbContext dbContext)
+        PublishSeatingMapVersionDraft(Guid venueId, Guid id, VenueDbContext dbContext, IBackgroundJobClient jobClient)
     {
         var versionDraft = await dbContext.VenueSeatingMapVersions
             .Include(version => version.Venue)
@@ -140,8 +143,9 @@ internal static class SeatingMapVersionEndpointsV1
         }
 
         versionDraft.Venue.PublishVersionMap(versionDraft);
-
         await dbContext.SaveChangesAsync();
+        jobClient.Enqueue<FanoutNewSeatingMapJob>(job => job.ExecuteAsync(venueId, id, default!));
+
         return TypedResults.Ok(versionDraft.ToGetSeatingMapVersionResponse());
     }
 

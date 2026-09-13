@@ -10,7 +10,7 @@ using TixTapGo.EventService.Enums;
 using TixTapGo.EventService.Integrations.InternalServices.VenueService;
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Persistence.DAL.Idempotency;
-using TixTapGo.Shared.Persistence.Queries;
+using TixTapGo.Shared.Persistence.Extensions;
 
 namespace TixTapGo.EventService.Endpoints.Event;
 
