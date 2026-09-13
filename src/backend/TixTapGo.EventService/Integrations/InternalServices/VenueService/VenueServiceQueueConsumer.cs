@@ -3,12 +3,14 @@
 using Microsoft.EntityFrameworkCore;
 
 using TixTapGo.EventService.DAL;
+using TixTapGo.EventService.Entities;
 using TixTapGo.EventService.Enums;
+using TixTapGo.Shared.Persistence.Extensions;
 using TixTapGo.VenueService.Contracts.Messages;
 
 namespace TixTapGo.EventService.Integrations.InternalServices.VenueService;
 
-internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>
+internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<VenueNewSeatingMapPublished>
 {
     private readonly EventDbContext _dbContext;
 
@@ -28,24 +30,111 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>
         {
             return;
         }
-        
+
         foreach (var eventEntity in venueEvents)
         {
-            eventEntity.OnVenueDeleted();
-            try
+            await _dbContext.SaveWithRetryOnConcurrencyAsync(() =>
             {
-                await _dbContext.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException e)
-            {
-                foreach (var entry in e.Entries)
-                {
-                    await entry.ReloadAsync();
-                }
                 eventEntity.OnVenueDeleted();
+            });
+        }
+    }
+
+    public async Task Consume(ConsumeContext<VenueNewSeatingMapPublished> context)
+    {
+        var venueId = context.Message.VenueId;
+        var newCategories = context.Message.Categories;
+
+        var currentCategories = await _dbContext.VenueSeatCategories
+            .Where(c => c.VenueId == venueId)
+            .Include(c => c.Prices)
+            .ThenInclude(p => p.Event)
+            .ToDictionaryAsync(category => category.Id, context.CancellationToken);
+
+        foreach (var newCategory in newCategories)
+        {
+            if (!currentCategories.TryGetValue(newCategory.Id, out var currentCategory))
+            {
+                currentCategory = new VenueSeatCategory
+                {
+                    Id = newCategory.Id,
+                    VenueId = venueId,
+                    Title = newCategory.Title,
+                    TotalCapacity = newCategory.Capacity
+                };
+                _dbContext.VenueSeatCategories.Add(currentCategory);
+                // Here and below save changes often to narrow transaction conflicts scope
                 await _dbContext.SaveChangesAsync();
             }
-            
+            else
+            {
+                if (currentCategory.TotalCapacity > newCategory.Capacity)
+                {
+                    // We have to check that the new capacity is not less than the sum of category price capacities for upcoming events
+                    foreach (var (_, eventPrices) in currentCategory.GetUpcomingEventsPrices())
+                    {
+                        if (eventPrices.Sum(p => p.Capacity) > newCategory.Capacity)
+                        {
+                            await _dbContext.SaveWithRetryOnConcurrencyAsync(() =>
+                            {
+                                foreach (var seatCategoryPrice in eventPrices)
+                                {
+                                    seatCategoryPrice.OnVenueCategoryExceeded();
+                                }
+                            });
+                        }
+                    }
+                }
+
+                // Here and below save changes often to narrow transaction conflicts scope
+                await _dbContext.SaveWithRetryOnConcurrencyAsync(() =>
+                {
+                    // Category was removed before, but now it is restored
+                    if (currentCategory.PendingRemove)
+                    {
+                        currentCategory.PendingRemove = false;
+                    }
+
+                    currentCategory.Title = newCategory.Title;
+                    currentCategory.TotalCapacity = newCategory.Capacity;
+                });
+            }
         }
+
+        HashSet<Guid> newCategoriesIds = new(newCategories.Select(c => c.Id));
+        List<VenueSeatCategory> categoriesToDelete = new();
+
+        foreach (VenueSeatCategory currentCategory in currentCategories.Values)
+        {
+            if (newCategoriesIds.Contains(currentCategory.Id))
+                continue;
+
+            if (currentCategory.PendingRemove)
+                continue;
+
+            var upcomingEventsPrices = currentCategory.GetUpcomingEventsPrices();
+            if (upcomingEventsPrices.Count > 0)
+            {
+                // Here and below save changes often to narrow transaction conflicts scope
+                await _dbContext.SaveWithRetryOnConcurrencyAsync(() =>
+                {
+                    // Removed category still holds prices for upcoming events.
+                    // To avoid removing side effects, mark it as pending remove with manual resolution
+                    foreach (var eventSeatCategoryPrice in upcomingEventsPrices.Values.SelectMany(ps => ps))
+                    {
+                        eventSeatCategoryPrice.OnVenueCategoryRemoved();
+                    }
+                    
+                    currentCategory.PendingRemove = true;
+                });
+            }
+            else
+            {
+                categoriesToDelete.Add(currentCategory);
+            }
+        }
+
+        _dbContext.VenueSeatCategories.RemoveRange(categoriesToDelete);
+        await _dbContext.SaveChangesAsync();
     }
 }

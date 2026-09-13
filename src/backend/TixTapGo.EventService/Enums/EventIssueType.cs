@@ -5,5 +5,7 @@ namespace TixTapGo.EventService.Enums;
 [JsonConverter(typeof(JsonStringEnumConverter<EventIssueType>))]
 public enum EventIssueType
 {
-    VenueDeleted = 0
+    VenueDeleted = 0,
+    VenueCategoryDeleted = 1,
+    VenueCategoryExceeded = 2,
 }

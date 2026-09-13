@@ -39,10 +39,9 @@ internal static class EventEndpointsV1
             .WhereIf(venue.Length > 0, @event => venue.Contains(@event.VenueId))
             .OrderBy(@event => @event.Id)
             .AsNoTracking()
-            .ProjectToGetEventResponse()
             .ToListAsync(cancellationToken);
 
-        return TypedResults.Ok(events);
+        return TypedResults.Ok(events.Select(@event => @event.ToGetEventResponse()).ToList());
     }
 
     internal static async Task<Results<Ok<GetEventDetailedResponse>, NotFound>> GetEvent(Guid id,
@@ -103,11 +102,6 @@ internal static class EventEndpointsV1
         if (!string.IsNullOrWhiteSpace(updateRequest.Description))
         {
             @event.Description = updateRequest.Description;
-        }
-
-        if (!string.IsNullOrWhiteSpace(updateRequest.Location))
-        {
-            @event.Location = updateRequest.Location;
         }
 
         if (updateRequest.Start is { } newStart)

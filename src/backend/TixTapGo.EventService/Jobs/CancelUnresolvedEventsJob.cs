@@ -30,7 +30,11 @@ internal class CancelUnresolvedEventsJob
             .Where(e => e.Status == EventStatus.Upcoming)
             .Where(e => e.Start < oneDayWindowEnd)
             .Where(e => e.Start > oneDayWindowStart)
-            .Where(e => e.ActiveIssues.Count != 0)
+            // ActiveIssues are stored in jsonb column. If there are no issues
+            // the column is null, not empty. But during projection it is converted to empty list.
+            // Since Count > 0 doesn't work with jsonb properly, we check for null here
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            .Where(e => e.ActiveIssues != null)
             .ToListAsync(cancellationToken.ShutdownToken);
 
         if (problemEvents.Count == 0)

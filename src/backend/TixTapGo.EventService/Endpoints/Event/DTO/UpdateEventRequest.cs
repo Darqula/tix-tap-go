@@ -17,7 +17,4 @@ public sealed record UpdateEventRequest
     public DateTimeOffset? End { get; set; }
     
     public EventStatus? Status { get; set; }
-
-    [MaxLength(256)]
-    public string? Location { get; set; }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TixTapGo.EventService.DAL;
@@ -11,9 +12,11 @@ using TixTapGo.EventService.DAL;
 namespace TixTapGo.EventService.Migrations
 {
     [DbContext(typeof(EventDbContext))]
-    partial class EventDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260913121235_AddEventCategorySeatPrices")]
+    partial class Rename
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -196,9 +199,6 @@ namespace TixTapGo.EventService.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ActiveIssues")
-                        .HasColumnType("jsonb");
-
                     b.Property<int?>("CancellationReason")
                         .HasColumnType("integer");
 
@@ -367,6 +367,36 @@ namespace TixTapGo.EventService.Migrations
                         .WithMany()
                         .HasForeignKey("InboxMessageId", "InboxConsumerId")
                         .HasPrincipalKey("MessageId", "ConsumerId");
+                });
+
+            modelBuilder.Entity("TixTapGo.EventService.Entities.Event", b =>
+                {
+                    b.OwnsMany("TixTapGo.EventService.Entities.EventIssue", "ActiveIssues", b1 =>
+                        {
+                            b1.Property<Guid>("EventId");
+
+                            b1.Property<int>("__synthesizedOrdinal")
+                                .ValueGeneratedOnAdd();
+
+                            b1.Property<DateTimeOffset>("DetectedAt");
+
+                            b1.Property<string>("Key");
+
+                            b1.Property<int>("Type");
+
+                            b1.HasKey("EventId", "__synthesizedOrdinal");
+
+                            b1.ToTable("Events");
+
+                            b1
+                                .ToJson("ActiveIssues")
+                                .HasColumnType("jsonb");
+
+                            b1.WithOwner()
+                                .HasForeignKey("EventId");
+                        });
+
+                    b.Navigation("ActiveIssues");
                 });
 
             modelBuilder.Entity("TixTapGo.EventService.Entities.SeatCategoryPrice", b =>

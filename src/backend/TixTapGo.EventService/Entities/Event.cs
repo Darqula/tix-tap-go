@@ -1,4 +1,6 @@
-﻿using TixTapGo.EventService.Contracts.Enums;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+using TixTapGo.EventService.Contracts.Enums;
 using TixTapGo.EventService.Contracts.Messages;
 using TixTapGo.EventService.Enums;
 using TixTapGo.Shared.Persistence.Entities;
@@ -17,13 +19,20 @@ internal sealed class Event : EntityBase
     public required DateTimeOffset Start { get; set; }
     public required DateTimeOffset End { get; set; }
 
-    public required string Location { get; set; }
-
     public EventStatus Status { get; private set; }
     public EventCancellationReason? CancellationReason { get; private set; }
 
-    public List<EventIssue> ActiveIssues { get; private set; } = new List<EventIssue>();
+    public List<SeatCategoryPrice> SeatCategoryPrices { get; private set; } = new List<SeatCategoryPrice>();
 
+    // There's no in-place "populate" for a plain jsonb converted property,
+    // so the field reference itself must be replaceable
+    // ReSharper disable once FieldCanBeMadeReadOnly.Local
+#pragma warning disable IDE0044
+    private List<EventIssue> _activeIssues = new();
+#pragma warning restore IDE0044
+
+    [NotMapped]
+    public IReadOnlyList<EventIssue> ActiveIssues => _activeIssues;
 
     #region Status
 
@@ -43,7 +52,7 @@ internal sealed class Event : EntityBase
     {
         if (Status == EventStatus.Cancelled)
             return;
-        
+
         Status = EventStatus.Cancelled;
         CancellationReason = reason;
         AddDomainEvent(new EventCancelled(Id, reason));
@@ -71,14 +80,67 @@ internal sealed class Event : EntityBase
 
     public void OnVenueDeleted()
     {
-        if (ActiveIssues.All(issue => issue.Type != EventIssueType.VenueDeleted))
+        string venueId = VenueId.ToString();
+        if (TryAddIssue(new EventIssue(EventIssueType.VenueDeleted, venueId)))
         {
-            ActiveIssues.Add(new EventIssue(EventIssueType.VenueDeleted, DateTimeOffset.UtcNow));
             AddDomainEvent(new EventDecisionRequired(
                 "Event's venue deleted",
                 Id,
-                new Dictionary<string, string>() { [nameof(VenueId)] = VenueId.ToString() }
+                new Dictionary<string, string> { [EventDecisionRequired.Keys.VenueId] = venueId }
             ));
         }
+    }
+
+    public void OnCategoryPriceExceededVenueCapacity(Guid venueCategoryId, Guid venueCategoryPricingId)
+    {
+        string venueId = VenueId.ToString();
+        string categoryId = venueCategoryId.ToString();
+        string categoryPricingId = venueCategoryPricingId.ToString();
+        if (TryAddIssue(new EventIssue(EventIssueType.VenueCategoryExceeded,
+                $"{venueId}:{categoryId}:{categoryPricingId}")))
+        {
+            AddDomainEvent(new EventDecisionRequired(
+                "Event's category pricing exceeded venue capacity",
+                Id,
+                new Dictionary<string, string>()
+                {
+                    [EventDecisionRequired.Keys.VenueId] = venueId,
+                    [EventDecisionRequired.Keys.VenueCategoryId] = categoryId,
+                    [EventDecisionRequired.Keys.VenueCategoryPricingId] = categoryPricingId
+                }
+            ));
+        }
+    }
+
+    public void OnVenueCategoryDeleted(Guid venueCategoryId, Guid venueCategoryPricingId)
+    {
+        string venueId = VenueId.ToString();
+        string categoryId = venueCategoryId.ToString();
+        string categoryPricingId = venueCategoryPricingId.ToString();
+        if (TryAddIssue(new EventIssue(EventIssueType.VenueCategoryDeleted,
+                $"{venueId}:{categoryId}:{categoryPricingId}")))
+        {
+            AddDomainEvent(new EventDecisionRequired(
+                "Event's venue category deleted",
+                Id,
+                new Dictionary<string, string>()
+                {
+                    [EventDecisionRequired.Keys.VenueId] = venueId,
+                    [EventDecisionRequired.Keys.VenueCategoryId] = categoryId,
+                    [EventDecisionRequired.Keys.VenueCategoryPricingId] = categoryPricingId
+                }
+            ));
+        }
+    }
+
+    private bool TryAddIssue(EventIssue issue)
+    {
+        if (_activeIssues.Contains(issue))
+        {
+            return false;
+        }
+
+        _activeIssues.Add(issue);
+        return true;
     }
 }

@@ -14,5 +14,4 @@ public record GetEventResponse
     public required DateTimeOffset End { get; init; }
     public required EventStatus Status { get; init; }
     public EventCancellationReason? CancellationReason { get; init; }
-    public required string Location { get; init; }
 }

@@ -9,8 +9,6 @@ namespace TixTapGo.EventService.Endpoints.Event;
 [Mapper]
 internal static partial class EventMapping
 {
-    public static partial IQueryable<GetEventResponse> ProjectToGetEventResponse(this IQueryable<Entities.Event> query);
-
     [MapperIgnoreSource(nameof(Entities.Event.IsDeleted))]
     [MapperIgnoreSource(nameof(Entities.Event.CreatedAt))]
     [MapperIgnoreSource(nameof(Entities.Event.UpdatedAt))]
@@ -38,5 +36,5 @@ internal static partial class EventMapping
         startDateDto!.Value.ToUniversalTime();
 
     [UserMapping(Default = false)]
-    private static bool IsResolutionRequired(List<EventIssue> issues) => issues.Count != 0;
+    private static bool IsResolutionRequired(IReadOnlyList<EventIssue> issues) => issues.Count != 0;
 }

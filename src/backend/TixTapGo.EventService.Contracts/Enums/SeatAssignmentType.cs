@@ -1,5 +1,8 @@
-﻿namespace TixTapGo.EventService.Enums;
+﻿using System.Text.Json.Serialization;
 
+namespace TixTapGo.EventService.Contracts.Enums;
+
+[JsonConverter(typeof(JsonStringEnumConverter<SeatAssignmentType>))]
 public enum SeatAssignmentType
 {
     /// <summary>
@@ -10,8 +13,5 @@ public enum SeatAssignmentType
     /// <summary>
     /// Seats are assigned to attendees
     /// </summary>
-    SeatsAssigned = 1,
-
-    //
-    Mixed = 2
+    Reserved = 1,
 }
