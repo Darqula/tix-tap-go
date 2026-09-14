@@ -17,6 +17,7 @@ internal static class VenueEndpointsV1
     {
         var venueGroup = routeBuilder.MapGroup("venues");
         venueGroup.MapGet("/", GetVenues).WithName("GetVenues");
+        venueGroup.MapGet("/detailed", GetVenuesDetailed).WithName("GetVenuesDetailed");
         venueGroup.MapGet("/{id:guid}", GetVenue).WithName("GetVenueById");
         venueGroup.MapPost("/", CreateVenue).WithName("CreateVenue").WithIdempotencyCheck();
         venueGroup.MapPatch("/{id:guid}", PatchVenue).WithName("UpdateVenue");
@@ -37,24 +38,59 @@ internal static class VenueEndpointsV1
         return TypedResults.Ok(venues);
     }
 
+    public static async Task<Ok<List<GetVenueDetailedResponse>>> GetVenuesDetailed(VenueDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        var result = await dbContext.Venues
+            .Include(venue => venue.SeatCategories)
+            .Select(venue => new
+            {
+                VenueId = venue.Id,
+                Venue = venue,
+                CurrentMap = venue.SeatingMapVersions!.AsQueryable()
+                    .Where(VenueSeatingMapVersion.IsCurrentActive)
+                    .Select(version => new
+                    {
+                        VersionId = version.Id,
+                        SeatsCount = version.Seats.Count
+                    })
+                    .SingleOrDefault()
+            })
+            .OrderBy(v => v.VenueId)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return TypedResults.Ok(result
+            .Select(r => r.Venue.ToGetVenueDetailedResponse(r.CurrentMap?.VersionId, r.CurrentMap?.SeatsCount))
+            .ToList());
+    }
+
     public static async Task<Results<Ok<GetVenueDetailedResponse>, NotFound>> GetVenue(Guid id,
         VenueDbContext dbContext,
         CancellationToken cancellationToken)
     {
         var result = await dbContext.Venues
+            .Include(venue => venue.SeatCategories)
             .Where(venue => venue.Id == id)
             .Select(venue => new
             {
                 Venue = venue,
-                CurrentMapVersion = venue.SeatingMapVersions!.AsQueryable()
-                    .Where(version => version.VenueId == id)
+                CurrentMap = venue.SeatingMapVersions!.AsQueryable()
                     .Where(VenueSeatingMapVersion.IsCurrentActive)
+                    .Select(version => new
+                    {
+                        VersionId = version.Id,
+                        SeatsCount = version.Seats.Count
+                    })
                     .SingleOrDefault()
             })
+            .AsNoTracking()
             .SingleOrDefaultAsync(cancellationToken);
 
         return result?.Venue != null
-            ? TypedResults.Ok(result.Venue.ToGetVenueDetailedResponse(result.CurrentMapVersion?.Id))
+            ? TypedResults.Ok(result.Venue.ToGetVenueDetailedResponse(
+                result.CurrentMap?.VersionId,
+                result.CurrentMap?.SeatsCount))
             : TypedResults.NotFound();
     }
 
@@ -107,7 +143,6 @@ internal static class VenueEndpointsV1
                     Venue = venue,
                     SeatingMapId = venue.SeatingMapVersions!
                         .AsQueryable()
-                        .Where(version => version.VenueId == id)
                         .Where(VenueSeatingMapVersion.IsCurrentActive)
                         .Select<VenueSeatingMapVersion, Guid?>(version => version.Id)
                         .FirstOrDefault()

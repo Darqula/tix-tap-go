@@ -18,4 +18,11 @@ internal sealed class VenueSeatingMapVersion : EntityBase
     public DateTimeOffset? ValidFrom { get; set; }
     public DateTimeOffset? ValidToExclusive { get; set; }
     public bool IsDraft { get; set; } = true;
+
+    private readonly List<VenueSeat>? _seats = null!;
+
+    public List<VenueSeat> Seats
+    {
+        get => _seats ?? throw new InvalidOperationException("Seats are not loaded");
+    }
 }

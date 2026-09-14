@@ -16,6 +16,7 @@ internal static partial class SeatingMapVersionMappings
     [MapperIgnoreSource(nameof(VenueSeatingMapVersion.UpdatedAt))]
     [MapperIgnoreSource(nameof(VenueSeatingMapVersion.DomainEvents))]
     [MapperIgnoreSource(nameof(VenueSeatingMapVersion.Venue))]
+    [MapperIgnoreSource(nameof(VenueSeatingMapVersion.Seats))]
     public static partial GetSeatingMapVersionResponse ToGetSeatingMapVersionResponse(
         this VenueSeatingMapVersion entity);
     
@@ -23,6 +24,7 @@ internal static partial class SeatingMapVersionMappings
     [MapperIgnoreTarget(nameof(VenueSeatingMapVersion.Venue))]
     [MapperIgnoreTarget(nameof(VenueSeatingMapVersion.ValidFrom))]
     [MapperIgnoreTarget(nameof(VenueSeatingMapVersion.ValidToExclusive))]
+    [MapperIgnoreTarget(nameof(VenueSeatingMapVersion.Seats))]
     [MapValue(nameof(VenueSeatingMapVersion.IsDraft), true)]
     public static partial VenueSeatingMapVersion ToEntity(this CreateSeatingMapVersionDraftRequest dto, Guid venueId);
 }

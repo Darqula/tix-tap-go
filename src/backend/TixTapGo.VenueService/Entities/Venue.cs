@@ -11,7 +11,12 @@ internal sealed class Venue : EntityBase
     public string? Description { get; set; }
 
     public IEnumerable<VenueSeatingMapVersion>? SeatingMapVersions { get; }
-    public IEnumerable<SeatCategory> SeatCategories { get; } = new List<SeatCategory>();
+
+    private readonly List<SeatCategory>? _seatCategories = null!;
+    public IEnumerable<SeatCategory> SeatCategories
+    {
+        get => _seatCategories ?? throw new InvalidOperationException("Seat categories are not loaded");
+    }
 
     public VenueSeatingMapVersion? GetCurrentActiveMapVersion()
     {

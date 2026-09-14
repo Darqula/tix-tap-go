@@ -12,6 +12,7 @@ internal static partial class SeatCategoryMappings
     [MapperIgnoreSource(nameof(Entities.SeatCategory.UpdatedAt))]
     [MapperIgnoreSource(nameof(Entities.SeatCategory.DomainEvents))]
     [MapperIgnoreSource(nameof(Entities.SeatCategory.Venue))]
+    [NamedMapping(nameof(ToGetSeatCategoryResponse))]
     public static partial GetSeatCategoryResponse ToGetSeatCategoryResponse(this Entities.SeatCategory entity);
 
     public static partial IQueryable<GetSeatCategoryResponse> ProjectToGetSeatCategoryResponse(
