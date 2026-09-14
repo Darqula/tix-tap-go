@@ -1,4 +1,5 @@
 ﻿using TixTapGo.Shared.Persistence.Entities;
+using TixTapGo.VenueService.Contracts.Messages.Local;
 using TixTapGo.VenueService.Endpoints.SeatingMapVersion.Exceptions;
 
 namespace TixTapGo.VenueService.Entities;
@@ -40,6 +41,7 @@ internal sealed class Venue : EntityBase
         versionDraft.IsDraft = false;
         versionDraft.ValidFrom = publicationDateTime;
         versionDraft.ValidToExclusive = null;
+        AddDomainEvent(new SeatingMapVersionPublished(Id, versionDraft.Id));
     }
 
     public VenueSeatingMapVersion UnpublishActiveMapVersion()

@@ -2,4 +2,8 @@
   <ItemGroup>
     <ProjectReference Include="..\TixTapGo.Shared\TixTapGo.Shared.csproj"/>
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="TixTapGo.VenueService"/>
+    <InternalsVisibleTo Include="TixTapGo.VenueService.Worker"/>
+  </ItemGroup>
 </Project>
