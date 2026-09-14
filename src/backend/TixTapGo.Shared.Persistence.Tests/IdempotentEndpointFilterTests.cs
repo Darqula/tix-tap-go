@@ -448,7 +448,7 @@ public sealed class IdempotentEndpointFilterTests(RedisCollectionFixture fixture
         using JsonDocument processingDocument = JsonDocument.Parse(rawValue);
         Assert.Equal("Processing", processingDocument.RootElement.GetProperty("Status").GetString());
         Assert.NotNull(ttl);
-        Assert.True(ttl.Value <= TimeSpan.FromMinutes(1));
+        Assert.InRange(ttl.Value, TimeSpan.FromMinutes(4), TimeSpan.FromMinutes(5));
 
         using var secondRequest = CreateRequest(HttpMethod.Post, "/blocking", key.ToString());
         HttpResponseMessage second = await _client.SendAsync(secondRequest);
@@ -518,7 +518,7 @@ public sealed class IdempotentEndpointFilterTests(RedisCollectionFixture fixture
     /// downstream of it. If no exception handler catches the exception, it unwinds through the
     /// caching middleware (whose finally restores the original body, so the capture block after
     /// its try/finally never runs): the exception propagates to the client and the
-    /// <c>Processing</c> claim is left in place until its 1-minute TTL expires. This pins the
+    /// <c>Processing</c> claim is left in place until its TTL expires. This pins the
     /// middleware-ordering contract - an exception handler registered upstream of the caching
     /// middleware would make this test fail with a 500 response instead of the thrown exception.
     /// </summary>
@@ -537,7 +537,7 @@ public sealed class IdempotentEndpointFilterTests(RedisCollectionFixture fixture
     }
 
     /// <summary>
-    /// Covers the crash-mid-request recovery scenario the 1-minute <c>Processing</c> TTL exists
+    /// Covers the crash-mid-request recovery scenario the <c>Processing</c> TTL exists
     /// for: a request that claimed the key but never completed (crashed instance, network loss)
     /// leaves a <c>Processing</c> entry that expires on its own, after which a retry with the
     /// same key must execute the handler again instead of being stuck at 409 forever.

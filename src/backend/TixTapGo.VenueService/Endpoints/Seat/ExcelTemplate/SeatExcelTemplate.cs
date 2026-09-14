@@ -151,9 +151,11 @@ internal sealed class SeatExcelTemplate
         dto = new ParsedSeatDto()
         {
             SheetRowNumber = sheetRowNumber,
-            RowNumber = row.Cell(SeatColumnsV1.RowNumber).Value.GetText(),
-            SeatNumber = row.Cell(SeatColumnsV1.SeatNumber).Value.GetText(),
-            Category = row.Cell(SeatColumnsV1.Category).Value.GetText(),
+            // To uniformly handle both Numeric and Text cells we avoid GetText (it throws cast exceptions)
+            // and use simple ToString with invariant culture (to avoid surprises with delimiters)
+            RowNumber = row.Cell(SeatColumnsV1.RowNumber).Value.ToString(CultureInfo.InvariantCulture),
+            SeatNumber = row.Cell(SeatColumnsV1.SeatNumber).Value.ToString(CultureInfo.InvariantCulture),
+            Category = row.Cell(SeatColumnsV1.Category).Value.ToString(CultureInfo.InvariantCulture),
             MapPositionX = mapPositionX,
             MapPositionY = mapPositionY
         };
