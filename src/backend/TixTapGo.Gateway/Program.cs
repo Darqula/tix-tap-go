@@ -69,10 +69,23 @@ builder.Services.AddReverseProxy()
         }
     });
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(opt =>
+        opt.AddDefaultPolicy(b =>
+        {
+            b.AllowAnyMethod();
+            b.AllowAnyOrigin();
+            b.AllowAnyHeader();
+        })
+    );
+}
+
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
 app.MapReverseProxy();
+app.UseCors();
 
 if (app.Environment.IsDevelopment())
 {
