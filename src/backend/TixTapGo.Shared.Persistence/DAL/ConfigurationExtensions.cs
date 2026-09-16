@@ -31,7 +31,33 @@ public static class ConfigurationExtensions
             configurator.AddEntityFrameworkOutbox<TDbContext>(efconfig =>
             {
                 efconfig.UsePostgres();
+                // ReadCommitted keeps conflicts resolvable via the endpoint retry below.
+                // By default, MassTransit uses Serializable
+                efconfig.IsolationLevel = System.Data.IsolationLevel.ReadCommitted;
                 efconfig.UseBusOutbox();
+            });
+
+            // Configuration for every consumer, setup consumer outboxing
+            // (inbox + outbox + one transaction per consumed message). Conflict retries
+            // at the message level, and the _error DLQ once retries are exhausted
+            configurator.AddConfigureEndpointsCallback((context, _, endpointConfigurator) =>
+            {
+                endpointConfigurator.UseMessageRetry(retry =>
+                {
+                    retry.Handle<DbUpdateConcurrencyException>();
+                    // hardcoded the intervals to support long and short jobs well
+                    retry.Intervals(
+                        TimeSpan.FromMilliseconds(100),
+                        TimeSpan.FromMilliseconds(500),
+                        TimeSpan.FromSeconds(1),
+                        TimeSpan.FromSeconds(2),
+                        TimeSpan.FromSeconds(5),
+                        TimeSpan.FromSeconds(10),
+                        TimeSpan.FromSeconds(20),
+                        TimeSpan.FromSeconds(30),
+                        TimeSpan.FromSeconds(45));
+                });
+                endpointConfigurator.UseEntityFrameworkOutbox<TDbContext>(context);
             });
         });
         builder.Services.AddScoped<ISaveChangesInterceptor, DomainEventsInterceptor>();

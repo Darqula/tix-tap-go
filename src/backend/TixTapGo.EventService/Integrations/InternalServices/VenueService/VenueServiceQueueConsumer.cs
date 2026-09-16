@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using TixTapGo.EventService.DAL;
 using TixTapGo.EventService.Entities;
 using TixTapGo.EventService.Enums;
-using TixTapGo.Shared.Persistence.Extensions;
 using TixTapGo.VenueService.Contracts.Messages;
 
 namespace TixTapGo.EventService.Integrations.InternalServices.VenueService;
@@ -33,10 +32,8 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<Ve
 
         foreach (var eventEntity in venueEvents)
         {
-            await _dbContext.SaveWithRetryOnConcurrencyAsync(() =>
-            {
-                eventEntity.OnVenueDeleted();
-            });
+            eventEntity.OnVenueDeleted();
+            await _dbContext.SaveChangesAsync();
         }
     }
 
@@ -75,29 +72,23 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<Ve
                     {
                         if (eventPrices.Sum(p => p.Capacity) > newCategory.Capacity)
                         {
-                            await _dbContext.SaveWithRetryOnConcurrencyAsync(() =>
+                            foreach (var seatCategoryPrice in eventPrices)
                             {
-                                foreach (var seatCategoryPrice in eventPrices)
-                                {
-                                    seatCategoryPrice.OnVenueCategoryExceeded();
-                                }
-                            });
+                                seatCategoryPrice.OnVenueCategoryExceeded();
+                            }
+                            await _dbContext.SaveChangesAsync();
                         }
                     }
                 }
 
-                // Here and below save changes often to narrow transaction conflicts scope
-                await _dbContext.SaveWithRetryOnConcurrencyAsync(() =>
+                if (currentCategory.PendingRemove)
                 {
-                    // Category was removed before, but now it is restored
-                    if (currentCategory.PendingRemove)
-                    {
-                        currentCategory.PendingRemove = false;
-                    }
+                    currentCategory.PendingRemove = false;
+                }
 
-                    currentCategory.Title = newCategory.Title;
-                    currentCategory.TotalCapacity = newCategory.Capacity;
-                });
+                currentCategory.Title = newCategory.Title;
+                currentCategory.TotalCapacity = newCategory.Capacity;
+                await _dbContext.SaveChangesAsync();
             }
         }
 
@@ -115,18 +106,15 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<Ve
             var upcomingEventsPrices = currentCategory.GetUpcomingEventsPrices();
             if (upcomingEventsPrices.Count > 0)
             {
-                // Here and below save changes often to narrow transaction conflicts scope
-                await _dbContext.SaveWithRetryOnConcurrencyAsync(() =>
+                // Removed category still holds prices for upcoming events.
+                // To avoid removing side effects, mark it as pending remove with manual resolution
+                foreach (var eventSeatCategoryPrice in upcomingEventsPrices.Values.SelectMany(ps => ps))
                 {
-                    // Removed category still holds prices for upcoming events.
-                    // To avoid removing side effects, mark it as pending remove with manual resolution
-                    foreach (var eventSeatCategoryPrice in upcomingEventsPrices.Values.SelectMany(ps => ps))
-                    {
-                        eventSeatCategoryPrice.OnVenueCategoryRemoved();
-                    }
-                    
-                    currentCategory.PendingRemove = true;
-                });
+                    eventSeatCategoryPrice.OnVenueCategoryRemoved();
+                }
+
+                currentCategory.PendingRemove = true;
+                await _dbContext.SaveChangesAsync();
             }
             else
             {
