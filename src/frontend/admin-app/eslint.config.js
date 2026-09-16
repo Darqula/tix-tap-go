@@ -4,6 +4,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 import prettier from "eslint-config-prettier";
+import tanstackQuery from "@tanstack/eslint-plugin-query";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 const fsdLayerRestrictions = {
@@ -40,6 +41,7 @@ export default defineConfig([
       reactHooks.configs.flat["recommended-latest"],
       reactRefresh.configs.vite,
       prettier,
+      tanstackQuery.configs["flat/recommended-strict"],
     ],
     languageOptions: {
       ecmaVersion: "latest",

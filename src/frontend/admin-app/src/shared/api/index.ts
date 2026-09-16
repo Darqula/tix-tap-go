@@ -1,1 +1,1 @@
-export { httpClient } from "./http-client";
+export { ApiError, httpClient } from "./http-client";

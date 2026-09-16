@@ -1,12 +1,19 @@
 import { AppProviders } from "./providers/AppProviders";
+import { TabLayout } from "@/widgets/tab-layout";
+import { TabItem } from "@/widgets/tab-layout/ui/TabLayout";
+import { VenuesPage } from "@/pages/venues/VenuesPage";
 import "./locales/i18n";
 
-function App() {
+const App = () => {
   return (
     <AppProviders>
-      <DashboardPage />
+      <TabLayout>
+        <TabItem title="Venues.TabTitle">
+          <VenuesPage />
+        </TabItem>
+      </TabLayout>
     </AppProviders>
   );
-}
+};
 
 export default App;

@@ -1,4 +1,4 @@
 export const appConfig = {
   appName: "TixTapGo Admin",
-  apiBaseUrl: "/api",
+  apiBaseUrl: "https://localhost:7177",
 } as const;
