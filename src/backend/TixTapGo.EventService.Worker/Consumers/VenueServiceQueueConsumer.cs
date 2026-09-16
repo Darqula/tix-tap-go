@@ -1,4 +1,4 @@
-﻿using MassTransit;
+using MassTransit;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +7,7 @@ using TixTapGo.EventService.Entities;
 using TixTapGo.EventService.Enums;
 using TixTapGo.VenueService.Contracts.Messages;
 
-namespace TixTapGo.EventService.Integrations.InternalServices.VenueService;
+namespace TixTapGo.EventService.Worker.Consumers;
 
 internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<VenueNewSeatingMapPublished>
 {
@@ -33,8 +33,9 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<Ve
         foreach (var eventEntity in venueEvents)
         {
             eventEntity.OnVenueDeleted();
-            await _dbContext.SaveChangesAsync();
         }
+
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task Consume(ConsumeContext<VenueNewSeatingMapPublished> context)
@@ -52,16 +53,13 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<Ve
         {
             if (!currentCategories.TryGetValue(newCategory.Id, out var currentCategory))
             {
-                currentCategory = new VenueSeatCategory
+                _dbContext.VenueSeatCategories.Add(new VenueSeatCategory
                 {
                     Id = newCategory.Id,
                     VenueId = venueId,
                     Title = newCategory.Title,
                     TotalCapacity = newCategory.Capacity
-                };
-                _dbContext.VenueSeatCategories.Add(currentCategory);
-                // Here and below save changes often to narrow transaction conflicts scope
-                await _dbContext.SaveChangesAsync();
+                });
             }
             else
             {
@@ -76,7 +74,6 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<Ve
                             {
                                 seatCategoryPrice.OnVenueCategoryExceeded();
                             }
-                            await _dbContext.SaveChangesAsync();
                         }
                     }
                 }
@@ -88,7 +85,6 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<Ve
 
                 currentCategory.Title = newCategory.Title;
                 currentCategory.TotalCapacity = newCategory.Capacity;
-                await _dbContext.SaveChangesAsync();
             }
         }
 
@@ -114,7 +110,6 @@ internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<Ve
                 }
 
                 currentCategory.PendingRemove = true;
-                await _dbContext.SaveChangesAsync();
             }
             else
             {

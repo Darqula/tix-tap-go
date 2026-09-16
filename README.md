@@ -34,7 +34,7 @@ orchestrated by the Aspire.
 | **Order Service** | Owns ticket purchases, refunds, and integration with a (mocked) payment provider. Orchestrates seat reservations and compensation when a payment fails. Keeps a local copy of seats and event category prices. |
 | **Check-In Service** | Handles attendee check-ins. Detects duplicate and forged tickets. Designed for fast ticket lookups and scalability (pre-warmed cache). Keeps a local copy of tickets sold. |
 | **Notification Service** | Turns integration events into notifications for admins and attendees; delivers them through several channels: email and SMS (mocked), and in-app. |
-| **Workers** | Background processing per service: message consumers (Venue Service) and recurring Hangfire jobs such as expiring past events and cancelling events with unresolved issues (Event Service). |
+| **Workers** | Background processing per service: message consumers and recurring Hangfire jobs. |
 | **Backend for Frontend (BFF)** | Serves client web apps (admin and storefront). Owns the OIDC login flow; refreshes tokens; maps the session cookie to the user's access token; aggregates and caches complex request results; pushes real-time in-app messages with SignalR. |
 | **Shared.\*** | Cross-cutting building blocks: base entity conventions, soft delete, domain events → outbox, idempotency, auth helpers. |
 | **Admin App** | Admin authentication, venue and event management, resolving issues. |
@@ -65,6 +65,11 @@ Entities queue domain events. A `SaveChanges` interceptor publishes them into Ma
 changes and outgoing messages are committed atomically.
 ([`DomainEventsInterceptor`](src/backend/TixTapGo.Shared.Persistence/DAL/DomainEventsInterceptor.cs),
 [`ConfigurationExtensions`](src/backend/TixTapGo.Shared.Persistence/DAL/ConfigurationExtensions.cs))
+
+Consumers get the same guarantee: every receive endpoint runs with an inbox/outbox, so a consumed message and
+whatever it publishes commit in one transaction and redelivery is deduplicated. Conflicts retry on the endpoint
+(`DbUpdateConcurrencyException` only, nine intervals from 100 ms to 45 s, then the `_error` queue), which is why the
+outbox runs at `ReadCommitted` instead of MassTransit's `Serializable` default.
 
 - DbContext pooling is deliberately disabled - it breaks outbox delivery.
 - `IBusControl` is registered by hand since the Aspire MassTransit toolkit's registration doesn't include it.

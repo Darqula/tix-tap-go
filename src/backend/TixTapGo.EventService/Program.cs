@@ -22,10 +22,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 var connectionString = builder.Configuration.GetConnectionString("eventsdb");
-builder.AddDbContextWithMassTransit<EventDbContext>(connectionString, "rabbitmq", configurator =>
-{
-    configurator.AddConsumer<VenueServiceQueueConsumer>();
-});
+builder.AddDbContextWithMassTransit<EventDbContext>(connectionString, "rabbitmq");
 builder.AddRedisDistributedCache("redis");
 builder.AddRedisClient("redis");
 builder.Services.AddHybridCache();
