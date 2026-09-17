@@ -6,9 +6,7 @@ using Microsoft.Extensions.Logging;
 
 using StackExchange.Redis;
 
-using TixTapGo.Shared.Persistence.Exceptions;
-
-namespace TixTapGo.Shared.Persistence.DAL.Idempotency;
+namespace TixTapGo.Shared.Web.Idempotency;
 
 internal sealed class IdempotencyStateManager(
     IConnectionMultiplexer redisConnectionMultiplexer,

@@ -7,6 +7,8 @@
   <Project Path="TixTapGo.EventService/TixTapGo.EventService.csproj"/>
   <Project Path="TixTapGo.Gateway/TixTapGo.Gateway.csproj"/>
   <Project Path="TixTapGo.ServiceDefaults/TixTapGo.ServiceDefaults.csproj"/>
+  <Project Path="TixTapGo.Shared.Web.Tests/TixTapGo.Shared.Web.Tests.csproj"/>
+  <Project Path="TixTapGo.Shared.Web/TixTapGo.Shared.Web.csproj"/>
   <Project Path="TixTapGo.Shared/TixTapGo.Shared.csproj"/>
   <Project Path="TixTapGo.Shared.Persistence/TixTapGo.Shared.Persistence.csproj"/>
   <Project Path="TixTapGo.Shared.Auth/TixTapGo.Shared.Auth.csproj"/>

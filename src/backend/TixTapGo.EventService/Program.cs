@@ -13,7 +13,8 @@ using TixTapGo.Shared.Auth;
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Exceptions;
 using TixTapGo.Shared.Persistence.DAL;
-using TixTapGo.Shared.Persistence.DAL.Idempotency;
+using TixTapGo.Shared.Web.ETag;
+using TixTapGo.Shared.Web.Idempotency;
 
 using Extensions = Microsoft.Extensions.Hosting.Extensions;
 
@@ -85,10 +86,12 @@ builder.Services.AddHangfireConfigured(builder.Configuration.GetConnectionString
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId);
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddIdempotency();
+builder.Services.AddTransient<ETagMiddleware>();
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
+app.UseMiddleware<ETagMiddleware>();
 app.UseMiddleware<IdempotencyCachingMiddleware>();
 
 if (app.Environment.IsDevelopment())

@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TixTapGo.ServiceDefaults\TixTapGo.ServiceDefaults.csproj"/>
     <ProjectReference Include="..\TixTapGo.Shared.Persistence\TixTapGo.Shared.Persistence.csproj"/>
+    <ProjectReference Include="..\TixTapGo.Shared.Web\TixTapGo.Shared.Web.csproj"/>
     <ProjectReference Include="..\TixTapGo.Shared\TixTapGo.Shared.csproj"/>
     <ProjectReference Include="..\TixTapGo.VenueService.Contracts\TixTapGo.VenueService.Contracts.csproj"/>
   </ItemGroup>

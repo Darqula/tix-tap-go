@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
-using TixTapGo.Shared.Persistence.DAL.Idempotency;
+using TixTapGo.Shared.Web.Idempotency;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.SeatingMapVersion.DTO;
 using TixTapGo.VenueService.Entities;

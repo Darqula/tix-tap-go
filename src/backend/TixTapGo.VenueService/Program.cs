@@ -1,12 +1,12 @@
 using Hangfire;
 
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 
 using TixTapGo.Shared.Converters;
 using TixTapGo.Shared.Exceptions;
 using TixTapGo.Shared.Persistence.DAL;
-using TixTapGo.Shared.Persistence.DAL.Idempotency;
+using TixTapGo.Shared.Web.ETag;
+using TixTapGo.Shared.Web.Idempotency;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Seat;
 using TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
@@ -56,11 +56,13 @@ builder.Services.AddHangfireConfigured(builder.Configuration.GetConnectionString
 builder.AddInternalOnlyAuthorization(Extensions.GatewayClientId, Extensions.EventServiceId);
 builder.Services.AddExceptionHandler<DomainExceptionHandler>();
 builder.Services.AddTransient<SeatExcelTemplate>();
+builder.Services.AddTransient<ETagMiddleware>();
 builder.Services.AddIdempotency();
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
+app.UseMiddleware<ETagMiddleware>();
 app.UseMiddleware<IdempotencyCachingMiddleware>();
 
 if (app.Environment.IsDevelopment())

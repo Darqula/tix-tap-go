@@ -9,7 +9,7 @@ using TixTapGo.VenueService.Contracts.Messages;
 
 namespace TixTapGo.EventService.Worker.Consumers;
 
-internal class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<VenueNewSeatingMapPublished>
+internal sealed class VenueServiceQueueConsumer : IConsumer<VenueDeleted>, IConsumer<VenueNewSeatingMapPublished>
 {
     private readonly EventDbContext _dbContext;
 

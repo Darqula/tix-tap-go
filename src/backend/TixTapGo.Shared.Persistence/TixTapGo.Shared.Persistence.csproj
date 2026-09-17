@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL"/>
-    <PackageReference Include="Aspire.StackExchange.Redis"/>
     <PackageReference Include="CommunityToolkit.Aspire.MassTransit.RabbitMQ"/>
     <PackageReference Include="MassTransit.EntityFrameworkCore"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore"/>

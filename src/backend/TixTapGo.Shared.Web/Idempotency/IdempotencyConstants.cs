@@ -1,4 +1,4 @@
-﻿namespace TixTapGo.Shared.Persistence.DAL.Idempotency;
+﻿namespace TixTapGo.Shared.Web.Idempotency;
 
 internal static class IdempotencyConstants
 {

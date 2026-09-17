@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-namespace TixTapGo.Shared.Persistence.DAL.Idempotency;
+namespace TixTapGo.Shared.Web.Idempotency;
 
 internal sealed class IdempotencyPrerequisitesValidator
 {

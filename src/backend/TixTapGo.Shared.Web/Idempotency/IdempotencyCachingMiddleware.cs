@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace TixTapGo.Shared.Persistence.DAL.Idempotency;
+namespace TixTapGo.Shared.Web.Idempotency;
 
 public class IdempotencyCachingMiddleware : IMiddleware
 {

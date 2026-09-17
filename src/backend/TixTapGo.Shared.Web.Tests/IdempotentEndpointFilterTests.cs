@@ -10,11 +10,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 using StackExchange.Redis;
 
-using TixTapGo.Shared.Persistence.DAL.Idempotency;
+using TixTapGo.Shared.Web.Idempotency;
 
 using Xunit;
 
-namespace TixTapGo.Shared.Persistence.Tests;
+namespace TixTapGo.Shared.Web.Tests;
 
 /// <summary>
 /// Integration tests for <see cref="IdempotentEndpointFilter"/> against a real Redis instance

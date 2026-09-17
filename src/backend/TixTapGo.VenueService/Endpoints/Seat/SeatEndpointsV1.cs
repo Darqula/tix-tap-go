@@ -3,8 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 using Npgsql;
 
-using TixTapGo.Shared.Persistence.DAL.Idempotency;
+using TixTapGo.Shared.Web.Idempotency;
 using TixTapGo.Shared.Validation;
+using TixTapGo.Shared.Web.ETag;
 using TixTapGo.VenueService.DAL;
 using TixTapGo.VenueService.Endpoints.Seat.DTO;
 using TixTapGo.VenueService.Endpoints.Seat.ExcelTemplate;
@@ -37,6 +38,7 @@ internal static class SeatEndpointsV1
         );
     }
 
+    [SkipETag]
     public static FileStreamHttpResult DownloadSeatsTemplate(Guid venueId, Guid mapVersionId,
         SeatExcelTemplate template, CancellationToken cancellationToken)
     {

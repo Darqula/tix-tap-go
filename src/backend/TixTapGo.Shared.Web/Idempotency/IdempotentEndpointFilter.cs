@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-using TixTapGo.Shared.Persistence.Exceptions;
-
-namespace TixTapGo.Shared.Persistence.DAL.Idempotency;
+namespace TixTapGo.Shared.Web.Idempotency;
 
 internal sealed class IdempotentEndpointFilter : IEndpointFilter
 {

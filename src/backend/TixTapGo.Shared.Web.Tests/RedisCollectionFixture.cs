@@ -2,7 +2,7 @@ using Testcontainers.Redis;
 
 using Xunit;
 
-namespace TixTapGo.Shared.Persistence.Tests;
+namespace TixTapGo.Shared.Web.Tests;
 
 public sealed class RedisCollectionFixture : IAsyncLifetime
 {
