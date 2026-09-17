@@ -2,7 +2,7 @@ import type { SxProps, Theme } from "@mui/material";
 
 const chip: SxProps<Theme> = {
   fontSize: "10px",
-  padding: "0px"
+  padding: "0px",
 };
 
 export const styles = {

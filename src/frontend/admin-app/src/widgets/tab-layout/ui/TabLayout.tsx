@@ -13,7 +13,11 @@ export const TabItem = ({ children }: TabItemProps) => {
   return children;
 };
 
-export const TabLayout = ({ children }: { children: ReactElement<TabItemProps> | ReactElement<TabItemProps>[] }) => {
+export const TabLayout = ({
+  children,
+}: {
+  children: ReactElement<TabItemProps> | ReactElement<TabItemProps>[];
+}) => {
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = useState(0);
   const handleTabChange = useCallback((_event: React.SyntheticEvent, newValue: number) => {

@@ -26,8 +26,7 @@ internal static class SeatEndpointsV1
     }
 
     public static async Task<Ok<List<GetSeatResponse>>> GetSeats(Guid venueId, Guid mapVersionId,
-        VenueDbContext dbContext,
-        CancellationToken cancellationToken)
+        VenueDbContext dbContext, CancellationToken cancellationToken)
     {
         return TypedResults.Ok(
             await dbContext.VenueSeats
@@ -38,8 +37,8 @@ internal static class SeatEndpointsV1
         );
     }
 
-    public static FileStreamHttpResult DownloadSeatsTemplate(SeatExcelTemplate template,
-        CancellationToken cancellationToken)
+    public static FileStreamHttpResult DownloadSeatsTemplate(Guid venueId, Guid mapVersionId,
+        SeatExcelTemplate template, CancellationToken cancellationToken)
     {
         var templateMemoryStream = template.GetTemplateStream();
 
@@ -50,9 +49,9 @@ internal static class SeatEndpointsV1
         );
     }
 
-    public static async Task<Results<Ok<UploadTemplateResponse>, ProblemHttpResult, ValidationProblem>> UploadSeatsTemplate(
-        Guid venueId, Guid mapVersionId, HttpRequest request, VenueDbContext dbContext, SeatExcelTemplate template,
-        CancellationToken cancellationToken)
+    public static async Task<Results<Ok<UploadTemplateResponse>, ProblemHttpResult, ValidationProblem>>
+        UploadSeatsTemplate(Guid venueId, Guid mapVersionId, HttpRequest request, VenueDbContext dbContext,
+            SeatExcelTemplate template, CancellationToken cancellationToken)
     {
         const int uploadMaxMb = 50;
         if (request.ContentLength > uploadMaxMb * 1024 * 1024)
@@ -62,7 +61,7 @@ internal static class SeatEndpointsV1
                 statusCode: StatusCodes.Status413PayloadTooLarge
             );
         }
-        
+
         var mapVersion = await dbContext.VenueSeatingMapVersions
             .Include(version => version.Venue)
             .ThenInclude(venue => venue.SeatCategories)
@@ -132,7 +131,7 @@ internal static class SeatEndpointsV1
                 )
             )
             .ToList();
-        
+
         try
         {
             dbContext.VenueSeats.AddRange(seatsToInsert);

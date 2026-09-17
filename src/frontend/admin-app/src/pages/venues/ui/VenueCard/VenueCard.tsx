@@ -1,10 +1,10 @@
-import type { VenueDetailed } from "@/entities/venues";
+import type { GetVenueDetailedResponse } from "@/entities/venues";
 import { Stack, Typography } from "@/shared/ui";
 import { Box, Chip } from "@mui/material";
 import { styles } from "./VenueCard.styles";
 
 type VenueCardProps = {
-  venue: VenueDetailed;
+  venue: GetVenueDetailedResponse;
 };
 
 const VenueCard = ({ venue }: VenueCardProps) => {

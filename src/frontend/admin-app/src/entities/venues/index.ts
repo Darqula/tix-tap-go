@@ -1,3 +1,2 @@
-export type { Venue, VenueDetailed } from "./model/types";
-export { getVenues } from "./api/getVenues";
-export { getVenuesDetailed } from "./api/getVenuesDetailed";
+export * from "@/shared/api/generated/venues/model";
+export * from "@/shared/api/generated/venues/api";
