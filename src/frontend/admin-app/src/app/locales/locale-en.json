@@ -4,5 +4,10 @@
     "Header": "Venues",
     "Description": "Physical locations with seating maps and seat categories.",
     "Create": "New Venue"
+  },
+  "General": {
+    "Create": "Create",
+    "Cancel": "Cancel",
+    "Close": "Close"
   }
 }

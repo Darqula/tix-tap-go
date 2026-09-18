@@ -54,6 +54,14 @@ export const theme = createTheme({
         }),
       },
     },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          width: "80%",
+          borderRadius: "16px"
+        }
+      }
+    },
     MuiAppBar: {
       styleOverrides: {
         root: {
