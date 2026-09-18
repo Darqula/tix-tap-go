@@ -1,4 +1,7 @@
-export { getVenuesDetailed } from "@/shared/api/generated/venues/api";
+export {
+    getVenuesDetailed,
+    useCreateVenue,
+} from "@/shared/api/generated/venues/api";
 export {
     type GetVenueDetailedResponse as VenueDetailed,
     type CreateVenueRequest as CreateVenueRequestData,

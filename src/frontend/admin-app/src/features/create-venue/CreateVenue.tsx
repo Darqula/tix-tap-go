@@ -1,7 +1,7 @@
 import type { CreateVenueRequestData } from "@/entities/venues";
 import { CreateVenueForm } from "./ui/CreateVenueForm";
 import { useCallback } from "react";
-import { useCreateVenue } from "@/shared/api/generated/venues/api";
+import { useCreateVenue } from "@/entities/venues";
 
 type CreateVenueProps = {
     isOpen: boolean;
