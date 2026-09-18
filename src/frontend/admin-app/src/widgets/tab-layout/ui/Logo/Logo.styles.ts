@@ -8,6 +8,6 @@ export const styles = (theme: Theme) =>
     letterSpacing: "0.3px",
     "& em": {
       fontStyle: "normal",
-      color: theme.palette.highlight.main,
+      color: theme.palette.highlight.light,
     },
   }) satisfies SxProps<Theme>;

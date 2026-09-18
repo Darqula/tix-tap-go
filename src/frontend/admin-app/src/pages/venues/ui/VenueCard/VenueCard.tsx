@@ -1,13 +1,15 @@
-import type { GetVenueDetailedResponse } from "@/entities/venues";
+import type { VenueDetailed } from "@/entities/venues";
 import { Stack, Typography } from "@/shared/ui";
-import { Box, Chip } from "@mui/material";
-import { styles } from "./VenueCard.styles";
+import { Box, Chip, useTheme } from "@mui/material";
+import { styles as stylesTemplate } from "./VenueCard.styles";
 
 type VenueCardProps = {
-  venue: GetVenueDetailedResponse;
+  venue: VenueDetailed;
 };
 
 const VenueCard = ({ venue }: VenueCardProps) => {
+  const theme = useTheme();
+  const styles = stylesTemplate(theme);
   return (
     <Box sx={styles.frame}>
       <Stack direction="column" spacing={1}>

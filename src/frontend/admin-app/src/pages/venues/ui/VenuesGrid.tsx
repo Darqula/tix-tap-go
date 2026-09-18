@@ -19,9 +19,9 @@ const VenuesGrid = () => {
     return <div>Error occurred while fetching venues.</div>;
   }
   return (
-    <Grid container spacing={2} sx={{ width: "80%", alignSelf: "center" }}>
+    <Grid container spacing={2}>
       {venues.map((venue) => (
-        <Grid key={venue.id} size={4}>
+        <Grid key={venue.id} size={3}>
           <VenueCard venue={venue} />
         </Grid>
       ))}

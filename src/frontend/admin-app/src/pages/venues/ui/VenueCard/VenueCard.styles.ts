@@ -1,18 +1,19 @@
-import type { SxProps, Theme } from "@mui/material";
+import type { Theme } from "@mui/material";
+import type { SxProps } from "@mui/material";
 
 const chip: SxProps<Theme> = {
   fontSize: "10px",
   padding: "0px",
 };
 
-export const styles = {
+export const styles = (theme: Theme) => ({
   frame: {
     border: "1px solid",
     borderColor: "divider",
     borderRadius: 4,
     padding: "12px",
     height: "100%",
-    boxShadow: "0 4px 14px rgba(15, 118, 110, .15)",
+    boxShadow: `0 4px 14px ${theme.palette.primary.main}26`,
     "&:hover": {
       boxShadow: 2,
       borderColor: "highlight.main",
@@ -46,4 +47,4 @@ export const styles = {
       color: "primary.main",
     },
   },
-} satisfies Record<string, SxProps<Theme>>;
+}) satisfies SxProps<Theme>;

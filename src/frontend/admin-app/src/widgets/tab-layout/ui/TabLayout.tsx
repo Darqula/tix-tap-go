@@ -40,7 +40,13 @@ export const TabLayout = ({
         </Tabs>
       </AppBar>
       {items.map((child, index) => (
-        <Box key={child.props.title} sx={{ display: currentTab === index ? "block" : "none" }}>
+        <Box
+          key={child.props.title}
+          sx={{
+            display: currentTab === index ? "block" : "none",
+            padding: 4,
+          }}
+        >
           {child}
         </Box>
       ))}
