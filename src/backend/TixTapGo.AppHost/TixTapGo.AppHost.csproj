@@ -11,6 +11,7 @@
     <ProjectReference Include="..\TixTapGo.EventService.Worker\TixTapGo.EventService.Worker.csproj"/>
     <ProjectReference Include="..\TixTapGo.EventService\TixTapGo.EventService.csproj"/>
     <ProjectReference Include="..\TixTapGo.Gateway\TixTapGo.Gateway.csproj"/>
+    <ProjectReference Include="..\TixTapGo.OrderService\TixTapGo.OrderService.csproj"/>
     <ProjectReference Include="..\TixTapGo.VenueService.Worker\TixTapGo.VenueService.Worker.csproj"/>
     <ProjectReference Include="..\TixTapGo.VenueService\TixTapGo.VenueService.csproj"/>
   </ItemGroup>

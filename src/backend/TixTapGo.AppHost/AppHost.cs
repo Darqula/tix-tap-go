@@ -10,6 +10,7 @@ var postgres = builder
 var eventsDb = postgres.AddDatabase("eventsdb");
 var authDb = postgres.AddDatabase("authdb");
 var venuesDb = postgres.AddDatabase("venuesdb");
+var ordersDb = postgres.AddDatabase("ordersdb");
 
 var rabbitMq = builder.AddRabbitMQ("rabbitmq")
     .WithManagementPlugin();
@@ -32,6 +33,8 @@ static GenerateParameterDefault ClientSecretDefault() => new()
 
 var eventServiceSecret = builder.AddParameter(
     "event-service-secret", ClientSecretDefault(), secret: true, persist: true);
+var orderServiceSecret = builder.AddParameter(
+    "order-service-secret", ClientSecretDefault(), secret: true, persist: true);
 var gatewaySecret = builder.AddParameter(
     "gateway-secret", ClientSecretDefault(), secret: true, persist: true);
 
@@ -39,6 +42,7 @@ var authService = builder.AddProject<Projects.TixTapGo_AuthService>("auth-servic
     .WithReference(authDb)
     .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey)
     .WithEnvironment("Authentication__ClientServices__event-service", eventServiceSecret)
+    .WithEnvironment("Authentication__ClientServices__order-service", orderServiceSecret)
     .WithEnvironment("Authentication__ClientServices__gateway", gatewaySecret);
 
 var authDbMigration = authService
@@ -50,6 +54,7 @@ authService.WaitForCompletion(authDbMigration);
 
 var eventService = builder.AddProject<Projects.TixTapGo_EventService>("event-service");
 var venueService = builder.AddProject<Projects.TixTapGo_VenueService>("venue-service");
+var orderService = builder.AddProject<Projects.TixTapGo_OrderService>("order-service");
 
 eventService
     .WithReference(eventsDb)
@@ -99,13 +104,31 @@ var venuesDbMigration = venueService
 venueService.WaitForCompletion(venuesDbMigration);
 venueServiceWorker.WaitForCompletion(venuesDbMigration);
 
+orderService
+    .WithReference(ordersDb)
+    .WithReference(authService)
+    .WithReference(rabbitMq)
+    .WithReference(redis)
+    .WaitFor(authService)
+    .WithEnvironment("Authentication__ClientSecret", orderServiceSecret)
+    .WithEnvironment("Authentication__ClientCredentialsEncryptionKey", clientCredentialsEncryptionKey);
+
+var ordersDbMigration = orderService
+    .AddEFMigrations("ordersdb-migration")
+    .RunDatabaseUpdateOnStart()
+    .WaitFor(ordersDb);
+
+orderService.WaitForCompletion(ordersDbMigration);
+
 builder.AddProject<Projects.TixTapGo_Gateway>("gateway")
     .WithReference(eventService)
     .WithReference(authService)
     .WithReference(venueService)
+    .WithReference(orderService)
     .WaitFor(eventService)
     .WaitFor(authService)
     .WaitFor(venueService)
+    .WaitFor(orderService)
     .WithEnvironment("Authentication__ClientSecret", gatewaySecret)
     .WithExternalHttpEndpoints();
 
