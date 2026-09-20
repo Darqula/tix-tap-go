@@ -12,7 +12,9 @@ internal static class SeatingMapVersionEndpointsV1
 {
     public static IEndpointRouteBuilder MapSeatingMapVersionEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var seatingMapVersionGroup = endpoints.MapGroup("/{venueId:guid}/seating-maps");
+        var seatingMapVersionGroup = endpoints.MapGroup("/{venueId:guid}/seating-maps")
+            .AddEndpointFilter<VenueExistsFilter>()
+            .ProducesProblem(404);
         seatingMapVersionGroup.MapGet("/", GetSeatingMapVersions).WithName("GetSeatingMapVersions");
         seatingMapVersionGroup.MapGet("/{id:guid}", GetSeatingMapVersion).WithName("GetSeatingMapVersionById");
         seatingMapVersionGroup.MapGet("/current", GetCurrentSeatingMapVersion).WithName("GetCurrentSeatingMapVersion");
@@ -65,15 +67,9 @@ internal static class SeatingMapVersionEndpointsV1
         return TypedResults.Ok<GetSeatingMapVersionResponse?>(currentMapVersion?.ToGetSeatingMapVersionResponse());
     }
 
-    public static async Task<Results<CreatedAtRoute<GetSeatingMapVersionResponse>, ProblemHttpResult>>
-        CreateSeatingMapVersionDraft(Guid venueId, CreateSeatingMapVersionDraftRequest createDraftDto,
-            VenueDbContext dbContext)
+    public static async Task<CreatedAtRoute<GetSeatingMapVersionResponse>> CreateSeatingMapVersionDraft(
+        Guid venueId, CreateSeatingMapVersionDraftRequest createDraftDto, VenueDbContext dbContext)
     {
-        if (!await dbContext.Venues.AnyAsync(venue => venue.Id == venueId))
-        {
-            return TypedResults.Problem(detail: $"Venue with id {venueId} not found");
-        }
-
         var newDraftVersion = dbContext.VenueSeatingMapVersions.Add(createDraftDto.ToEntity(venueId));
         await dbContext.SaveChangesAsync();
         return TypedResults.CreatedAtRoute(
@@ -145,21 +141,37 @@ internal static class SeatingMapVersionEndpointsV1
         return TypedResults.Ok(versionDraft.ToGetSeatingMapVersionResponse());
     }
 
-    public static async Task<Results<Ok<GetSeatingMapVersionResponse>, ProblemHttpResult>> UnpublishSeatingMapVersion(
+    public static async Task<Ok<GetSeatingMapVersionResponse>> UnpublishSeatingMapVersion(
         Guid venueId, VenueDbContext dbContext)
     {
         var venue = await dbContext.Venues
             .Include(venue => venue.SeatingMapVersions)
-            .SingleOrDefaultAsync(venue => venue.Id == venueId);
-
-        if (venue == null)
-        {
-            return TypedResults.Problem(detail: $"Venue with id {venueId} not found");
-        }
+            .SingleAsync(venue => venue.Id == venueId);
 
         var unpublishedVersion = venue.UnpublishActiveMapVersion();
         await dbContext.SaveChangesAsync();
 
         return TypedResults.Ok(unpublishedVersion.ToGetSeatingMapVersionResponse());
+    }
+
+    private class VenueExistsFilter(VenueDbContext dbContext) : IEndpointFilter
+    {
+        public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context,
+            EndpointFilterDelegate next)
+        {
+            // The {venueId:guid} route constraint already guarantees the id is a valid Guid,
+            // so the filter only needs to check that the venue exists.
+            Guid venueId = Guid.Parse((string)context.HttpContext.GetRouteValue("venueId")!);
+
+            if (!await dbContext.Venues.AnyAsync(venue => venue.Id == venueId))
+            {
+                return TypedResults.Problem(
+                    detail: $"Venue with id {venueId} not found",
+                    statusCode: StatusCodes.Status404NotFound
+                );
+            }
+
+            return await next(context);
+        }
     }
 }

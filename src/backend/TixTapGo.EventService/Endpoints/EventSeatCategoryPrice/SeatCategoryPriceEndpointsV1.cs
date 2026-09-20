@@ -11,14 +11,13 @@ using TixTapGo.EventService.Enums;
 
 namespace TixTapGo.EventService.Endpoints.EventSeatCategoryPrice;
 
-internal static class SeatCategoryPriceEndpoints
+internal static class SeatCategoryPriceEndpointsV1
 {
     public static IEndpointRouteBuilder MapEventSeatCategoryPriceEndpoints(this RouteGroupBuilder routeBuilder)
     {
         var categoryPriceGroup = routeBuilder
             .MapGroup("/{eventId:guid}/category-prices")
             .AddEndpointFilter<EventExistsFilter>()
-            .ProducesProblem(400)
             .ProducesProblem(404);
         categoryPriceGroup.MapGet("/", GetEventCategoryPrices).WithName("GetEventCategoryPrices");
         categoryPriceGroup.MapGet("/{id:guid}", GetEventCategoryPrice).WithName("GetEventCategoryPrice");
@@ -208,24 +207,9 @@ internal static class SeatCategoryPriceEndpoints
         public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context,
             EndpointFilterDelegate next)
         {
-            // Guid validation is actually redundant because eventId format is already validated
-            // by routing, but we still need to check that the event exists
-            string? eventIdRaw = context.HttpContext.GetRouteValue("eventId") as string;
-            if (string.IsNullOrWhiteSpace(eventIdRaw))
-            {
-                return TypedResults.Problem(
-                    detail: "EventId is required",
-                    statusCode: StatusCodes.Status400BadRequest
-                );
-            }
-
-            if (!Guid.TryParse(eventIdRaw, out Guid eventId))
-            {
-                return TypedResults.Problem(
-                    detail: "EventId value must be a valid UUID",
-                    statusCode: StatusCodes.Status400BadRequest
-                );
-            }
+            // The {eventId:guid} route constraint already guarantees the id is a valid Guid,
+            // so the filter only needs to check that the event exists
+            Guid eventId = Guid.Parse((string)context.HttpContext.GetRouteValue("eventId")!);
 
             if (!await dbContext.Events.AnyAsync(e => e.Id == eventId))
             {

@@ -16,7 +16,9 @@ internal static class SeatEndpointsV1
 {
     public static IEndpointRouteBuilder MapSeatEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var seatEndpointGroup = endpoints.MapGroup("{mapVersionId:guid}/seats");
+        var seatEndpointGroup = endpoints.MapGroup("{mapVersionId:guid}/seats")
+            .AddEndpointFilter<SeatingMapExistsFilter>()
+            .ProducesProblem(404);
         seatEndpointGroup.MapGet("/", GetSeats).WithName("GetSeats");
         seatEndpointGroup.MapGet("/template", DownloadSeatsTemplate).WithName("DownloadSeatsTemplate");
         seatEndpointGroup.MapPost("/template", UploadSeatsTemplate)
@@ -67,15 +69,7 @@ internal static class SeatEndpointsV1
         var mapVersion = await dbContext.VenueSeatingMapVersions
             .Include(version => version.Venue)
             .ThenInclude(venue => venue.SeatCategories)
-            .SingleOrDefaultAsync(version => version.Id == mapVersionId, cancellationToken);
-
-        if (mapVersion == null)
-        {
-            return TypedResults.Problem(
-                detail: $"Seating map version {mapVersionId} not found",
-                statusCode: StatusCodes.Status404NotFound
-            );
-        }
+            .SingleAsync(version => version.Id == mapVersionId, cancellationToken);
 
         if (mapVersion.Venue.Id != venueId)
         {
@@ -148,5 +142,26 @@ internal static class SeatEndpointsV1
         }
 
         return TypedResults.Ok(new UploadTemplateResponse(seatsToInsert.Count));
+    }
+    
+    private class SeatingMapExistsFilter(VenueDbContext dbContext) : IEndpointFilter
+    {
+        public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context,
+            EndpointFilterDelegate next)
+        {
+            // The {mapVersionId:guid} route constraint already guarantees the id is a valid Guid,
+            // so the filter only needs to check that the seating map version exists.
+            Guid mapVersionId = Guid.Parse((string)context.HttpContext.GetRouteValue("mapVersionId")!);
+
+            if (!await dbContext.VenueSeatingMapVersions.AnyAsync(version => version.Id == mapVersionId))
+            {
+                return TypedResults.Problem(
+                    detail: $"Seating map version {mapVersionId} not found",
+                    statusCode: StatusCodes.Status404NotFound
+                );
+            }
+
+            return await next(context);
+        }
     }
 }
