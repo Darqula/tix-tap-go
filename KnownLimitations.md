@@ -19,6 +19,7 @@
   messages (`EventSeatCategoryPrice*`, `EventCancelled`, `EventDecisionRequired`), but nothing consumes them yet.
 - **Notifications, check-in, storefront app.** Planned - see the status table in the [README](README.md#status).
 - **Admin app.** App shell and basic CRUD only so far.
+- **Admin MCP Server.** Planned: data management and reporting tools for admins. Needs end-user authentication first.
 
 ---
 
@@ -35,6 +36,20 @@ This isn't something to patch on the Gateway alone; it needs the end-user identi
 add token validation and scope-based policies at the Gateway as a coarse edge filter, forward user tokens from the
 BFFs instead of overwriting them, and widen each service's `InternalOnly` policy to "known client **or** authenticated
 user with the required scope".
+
+### The public MCP endpoint has no authentication or rate limiting
+
+The Storefront MCP Server ([`StorefrontMcpService/Program.cs`](src/backend/TixTapGo.StorefrontMcpService/Program.cs))
+is public. It takes no credentials and doesn't throttle, so anyone who can reach `/mcp` can call
+`get_schedule` as often as they like. Every call fans out through the Gateway (all venues, then the matching events and
+their prices), which makes it an easy way to put load on the backend. The only protection today is the `Origin` check
+(browser requests are rejected unless listed in `Mcp:AllowedOrigins`), and that doesn't stop other clients.
+
+The MCP specification makes authorization optional, so skipping it for public data is fine, but it requires servers to
+rate limit tool calls. Rate limiting (for example ASP.NET Core's rate limiter, per client IP) is the part to add before
+exposing this beyond local dev. Authentication can follow the end-user identity work. Event titles and descriptions are
+also returned as organizer-written text; the tool description tells agents to treat them as data, which is guidance for
+the model, not enforcement.
 
 ### Tokens carry no scopes or audiences
 

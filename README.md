@@ -36,6 +36,8 @@ orchestrated by the Aspire.
 | **Notification Service** | Turns integration events into notifications for admins and attendees; delivers them through several channels: email and SMS (mocked), and in-app. |
 | **Workers** | Background processing per service: message consumers and recurring Hangfire jobs. |
 | **Backend for Frontend (BFF)** | Serves client web apps (admin and storefront). Owns the OIDC login flow; refreshes tokens; maps the session cookie to the user's access token; aggregates and caches complex request results; pushes real-time in-app messages with SignalR. |
+| **Storefront MCP Server** | Public [MCP](https://modelcontextprotocol.io) server that lets AI assistants help attendees find events and purchase tickets. Owns no data - reads through the Gateway. Stateless Streamable HTTP. |
+| **Admin MCP Server** | Planned [MCP](https://modelcontextprotocol.io) server that lets AI assistants help admins and organizers work with the platform: tools for data management (venues, events, pricing) and for reporting. Like the Storefront one, it would own no data and go through the Gateway. |
 | **Shared.\*** | Cross-cutting building blocks: base entity conventions, soft delete, domain events → outbox, idempotency, auth helpers. |
 | **Admin App** | Admin authentication, venue and event management, resolving issues. |
 | **Storefront App** | Attendee authentication, event listings, ticket purchase and refunds. |
@@ -52,6 +54,8 @@ orchestrated by the Aspire.
 | Shared | Persistence / Auth / Shared libs | Working | Outbox, soft delete, concurrency tokens, Redis-backed idempotency |
 | Clients | Admin app (React) | Early | App shell, i18n, theme. Venues page currently uses mock data |
 | Edge | BFFs (admin, storefront) | Planned | One cookie-session BFF per app on a shared library; user tokens forwarded to services; real-time notifications (SignalR) |
+| Edge | Storefront MCP Server | Early | Single `get_schedule` tool: events by location and date range, with prices. No authentication or rate limiting yet |
+| Edge | Admin MCP Server | Planned | Data management and reporting tools for admins |
 | Sales | OrderService + Worker | Planned | Seat holds with TTL, purchase saga, idempotent payment confirmation |
 | Comms | NotificationService | Planned | Consumers fanning out order, event-cancellation and disruption messages |
 | Access | CheckInService | Planned | Ticket scanning and entry validation |
@@ -125,7 +129,7 @@ authorization policy only lets in known client ids.
 ## Tech stack
 
 **Backend:** .NET 10 (C# 14), ASP.NET Core (Minimal API), EF Core 10 + Npgsql (PostgreSQL), Aspire, YARP, OpenIddict, MassTransit
-(RabbitMQ, EF outbox), Redis, SignalR, Hangfire, Mapperly, ClosedXML, OpenTelemetry, Scalar.
+(RabbitMQ, EF outbox), Redis, SignalR, Hangfire, Mapperly, ClosedXML, OpenTelemetry, Scalar, MCP C# SDK.
 
 **Frontend:** React 19, TypeScript, Vite, MUI, TanStack Query, Zustand, i18next. Organized with Feature-Sliced Design.
 
@@ -166,6 +170,7 @@ Once everything is healthy:
 
 - **Aspire dashboard:** URL printed in the console (resources, logs, traces)
 - **API reference (Scalar):** `https://localhost:7177/scalar`
+- **Storefront MCP:** `https://localhost:7300/mcp` (Streamable HTTP, no auth now). Try it with `npx @modelcontextprotocol/inspector` and call `get_schedule`
 - **RabbitMQ management and RedisInsight:** links in the Aspire dashboard
 
 ### Admin app
