@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TixTapGo.StorefrontMcpService\TixTapGo.StorefrontMcpService.csproj"/>
     <ProjectReference Include="..\TixTapGo.AuthService\TixTapGo.AuthService.csproj"/>
     <ProjectReference Include="..\TixTapGo.EventService.Worker\TixTapGo.EventService.Worker.csproj"/>
     <ProjectReference Include="..\TixTapGo.EventService\TixTapGo.EventService.csproj"/>

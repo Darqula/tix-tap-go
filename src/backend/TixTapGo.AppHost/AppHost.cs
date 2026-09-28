@@ -10,6 +10,7 @@ var venues = builder.AddVenueService(infra, authParams, auth);
 var events = builder.AddEventService(infra, authParams, auth, venues);
 var orders = builder.AddOrderService(infra, authParams, auth);
 
-builder.AddGateway(authParams, auth, events, venues, orders);
+var gateway = builder.AddGateway(authParams, auth, events, venues, orders);
+builder.AddStorefrontMcpService(gateway);
 
 builder.Build().Run();

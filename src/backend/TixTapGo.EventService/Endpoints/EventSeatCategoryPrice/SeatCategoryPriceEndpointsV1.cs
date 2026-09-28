@@ -13,8 +13,12 @@ namespace TixTapGo.EventService.Endpoints.EventSeatCategoryPrice;
 
 internal static class SeatCategoryPriceEndpointsV1
 {
+    private const int MaxEventIdsPerRequest = 100;
+
     public static IEndpointRouteBuilder MapEventSeatCategoryPriceEndpoints(this RouteGroupBuilder routeBuilder)
     {
+        routeBuilder.MapGet("/category-prices", GetEventsCategoryPrices).WithName("GetEventsCategoryPrices");
+
         var categoryPriceGroup = routeBuilder
             .MapGroup("/{eventId:guid}/category-prices")
             .AddEndpointFilter<EventExistsFilter>()
@@ -116,6 +120,28 @@ internal static class SeatCategoryPriceEndpointsV1
         var seatCategoryPrices = await dbContext.SeatCategoryPrices
             .Where(price => price.EventId == eventId)
             .OrderBy(price => price.Id)
+            .AsNoTracking()
+            .ProjectToSeatCategoryResponses()
+            .ToListAsync(cancellationToken);
+
+        return TypedResults.Ok(seatCategoryPrices);
+    }
+
+    public static async Task<Results<Ok<List<GetSeatCategoryPriceResponse>>, ValidationProblem>>
+        GetEventsCategoryPrices(Guid[] eventId, EventDbContext dbContext, CancellationToken cancellationToken)
+    {
+        Guid[] eventIds = eventId.Distinct().ToArray();
+        if (eventIds.Length is 0 or > MaxEventIdsPerRequest)
+        {
+            return TypedResults.ValidationProblem(new Dictionary<string, string[]>
+            {
+                [nameof(eventId)] = [$"Provide between 1 and {MaxEventIdsPerRequest} distinct event ids"]
+            });
+        }
+
+        var seatCategoryPrices = await dbContext.SeatCategoryPrices
+            .Where(price => eventIds.Contains(price.EventId))
+            .OrderBy(price => price.EventId).ThenBy(price => price.Id)
             .AsNoTracking()
             .ProjectToSeatCategoryResponses()
             .ToListAsync(cancellationToken);

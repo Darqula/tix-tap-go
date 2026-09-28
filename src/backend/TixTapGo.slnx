@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="TixTapGo.AppHost/TixTapGo.AppHost.csproj"/>
+  <Project Path="TixTapGo.StorefrontMcpService/TixTapGo.StorefrontMcpService.csproj"/>
   <Project Path="TixTapGo.AuthService.Cli/TixTapGo.AuthService.Cli.csproj"/>
   <Project Path="TixTapGo.AuthService/TixTapGo.AuthService.csproj"/>
   <Project Path="TixTapGo.EventService.Contracts/TixTapGo.EventService.Contracts.csproj"/>
